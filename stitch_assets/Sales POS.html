@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Alexandria POS - Sales Terminal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;0,900;1,400&amp;family=Inter:wght@400;500;600&amp;family=Public_Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#dbdadb",
+                        "surface": "#faf9fa",
+                        "tertiary-fixed-dim": "#dcc661",
+                        "on-secondary-container": "#606569",
+                        "on-primary-fixed": "#001946",
+                        "inverse-surface": "#303031",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#dfe3e8",
+                        "secondary": "#5a5f63",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e9e8e9",
+                        "secondary-fixed": "#dfe3e8",
+                        "on-background": "#1b1c1d",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e3e2e3",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#c2c7cc",
+                        "on-tertiary-fixed": "#211b00",
+                        "inverse-primary": "#b1c5ff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#d9e2ff",
+                        "surface-bright": "#faf9fa",
+                        "primary-container": "#3366cc",
+                        "on-surface-variant": "#434653",
+                        "on-secondary-fixed-variant": "#42474b",
+                        "outline": "#737784",
+                        "inverse-on-surface": "#f2f0f1",
+                        "on-tertiary-container": "#4a3f00",
+                        "on-secondary-fixed": "#171c20",
+                        "on-surface": "#1b1c1d",
+                        "tertiary": "#6d5e00",
+                        "primary-fixed-dim": "#b1c5ff",
+                        "on-primary-container": "#e7ebff",
+                        "primary": "#094cb2",
+                        "outline-variant": "#c3c6d5",
+                        "on-error": "#ffffff",
+                        "background": "#faf9fa",
+                        "surface-container-low": "#f5f3f4",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#bfab49",
+                        "tertiary-fixed": "#f9e37a",
+                        "on-tertiary-fixed-variant": "#524600",
+                        "on-primary-fixed-variant": "#00419d",
+                        "surface-tint": "#2259bf",
+                        "surface-container": "#efedee",
+                        "surface-variant": "#e3e2e3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Public Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Noto Serif', serif; }
+        .label-text { font-family: 'Public Sans', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-lg flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-4">
+<button class="text-slate-900 dark:text-slate-50 active:scale-95 transition-all duration-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="font-['Noto_Serif'] text-xl font-black text-slate-900 dark:text-slate-50 tracking-tight">Alexandria POS</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-['Noto_Serif'] font-bold text-slate-900 dark:text-slate-50 hidden md:block">Sales Terminal</span>
+<button class="text-blue-700 dark:text-blue-400 active:scale-95 transition-all duration-200">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 px-4 md:px-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Product Selection & Inventory Search -->
+<section class="lg:col-span-7 space-y-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-end">
+<h2 class="text-2xl font-bold text-primary">Catalog</h2>
+<div class="relative w-full max-w-xs">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface border-none ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary rounded-lg text-sm" placeholder="Search archives..." type="text"/>
+</div>
+</div>
+<!-- Bento Grid for Products -->
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+<!-- Product Card 1 -->
+<button class="group bg-surface-container-low p-4 rounded-xl text-left hover:bg-surface-container-high transition-colors active:scale-[0.98]">
+<div class="aspect-square bg-surface-container rounded mb-3 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Stack of vintage hardcover books with worn leather spines and cream-colored pages in soft library lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH4bLntzdHBYBu54zmRRmhAFCFMpOcIHVGqjhg1nLfyroKjzoUvr2Fmcxc8oGiinErUVEEIpSyiUAN3LX183ilCPCs-SuJIrpgNlYY2sWNcRTAkq-nBHk6HtGSO85Ol4ae1QvC-RtIBHs0nzUeHEOk3ynu7Dv6OzQhcl4My-d1wYp4g-qPHethu4GHOI0MAYMXAmsWjTwBIFJOh1TLkymEZP2pg1t1TXIe3652vEiX3ikAMV3KqzxFRqcb4AKw_7tjKux3Nif4Nms"/>
+</div>
+<p class="label-text text-[10px] uppercase font-semibold tracking-widest text-tertiary">Rare Editions</p>
+<h4 class="font-headline font-bold text-sm mt-1 leading-tight">The Odyssey (1924 Ed.)</h4>
+<p class="text-primary font-bold mt-2">$245.00</p>
+</button>
+<!-- Product Card 2 -->
+<button class="group bg-surface-container-low p-4 rounded-xl text-left hover:bg-surface-container-high transition-colors active:scale-[0.98]">
+<div class="aspect-square bg-surface-container rounded mb-3 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Classic fountain pen laying on an open ivory notebook with elegant cursive handwriting and warm desk lamp lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdxfB7Dn1_hF4g3gf3qlMAGe2jcAkG-GMbxSoH87C2DHtETRQU1NWIDlHmXPA8tVTUyD0ossp7R81rvCG8ymI6BJOOKQwFua5TZrr0wa_R2byafOBIUhFU2of_R6WRh26W0AokRz9oraf_6h5E6eTkWrMlQMZebDyZUCEaKgf2zaXB3mcpiCEjErjvzRBiLwtfd-AZ7SvxcDWzMXK9HoGj05Y31fTUMdQwJOhMuHXiefp_SzzRVA7EWCJ8opmiUmRuahoPabSBxvk"/>
+</div>
+<p class="label-text text-[10px] uppercase font-semibold tracking-widest text-tertiary">Stationery</p>
+<h4 class="font-headline font-bold text-sm mt-1 leading-tight">Lamy Safari - Azure</h4>
+<p class="text-primary font-bold mt-2">$32.00</p>
+</button>
+<!-- Product Card 3 -->
+<button class="group bg-surface-container-low p-4 rounded-xl text-left hover:bg-surface-container-high transition-colors active:scale-[0.98]">
+<div class="aspect-square bg-surface-container rounded mb-3 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Close-up of a magnifying glass over an old world map with sepia tones and intricate geographical details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2OdDi6z0KP37aPxqpEFP3IHEyYEpPUKi1MXaY2IHoM8ufssbZWvW1wWqRpo33RZ4T0kM9h4RqSsp6LKXU4dqRHZF1ymC4OT4lQB9NX8nK72_eXvVE2iYAaJfaOIprSi4Y1dDdPvY8kvC5H-lMdKgC25897od1JaRFA1Zu_cal2-dCBGATgHMAwOaH_uvjBvUmyyDWYeU9eudmw1vFjdyI9ozDfFLu1UEXrVzqQORM4xVBdVRdFuql9taOuHl_83mcH249XY1vvtY"/>
+</div>
+<p class="label-text text-[10px] uppercase font-semibold tracking-widest text-tertiary">Cartography</p>
+<h4 class="font-headline font-bold text-sm mt-1 leading-tight">Antique World Map</h4>
+<p class="text-primary font-bold mt-2">$85.00</p>
+</button>
+<!-- Product Card 4 -->
+<button class="group bg-surface-container-low p-4 rounded-xl text-left hover:bg-surface-container-high transition-colors active:scale-[0.98]">
+<div class="aspect-square bg-surface-container rounded mb-3 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A jar of dark blue calligraphy ink and a metal nib pen on a textured paper background with artistic ink splatters" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_w7cks0DSB5J6oAij4VRPCxeu4g3TvYE5DIp5kYkQVxkd2w25XwpOxDdn-D_ScYQZkocvReAjSfg8RYvRG2l6jD_CULCLcG7z1O88ioAc19yYb_R5DZl40mSYBORS4M1nMjCak-EmTMaFayinBa8kwC1Yg4XKENzcSbK5ZMZbWsZgOraVPxYtTyvfdXDRZWekLc9w_MIVeOO4Oho7Dj8ZuPd1aB5mUXL-6ZbhFO8ni81b1m2dXIDV-je8LdhoboXuQApf38BlGZ4"/>
+</div>
+<p class="label-text text-[10px] uppercase font-semibold tracking-widest text-tertiary">Archive Supplies</p>
+<h4 class="font-headline font-bold text-sm mt-1 leading-tight">Iron Gall Ink - 50ml</h4>
+<p class="text-primary font-bold mt-2">$18.50</p>
+</button>
+<!-- Product Card 5 -->
+<button class="group bg-surface-container-low p-4 rounded-xl text-left hover:bg-surface-container-high transition-colors active:scale-[0.98]">
+<div class="aspect-square bg-surface-container rounded mb-3 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Minimalist bookmark made of polished brass with geometric engravings laying on white paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2ZZDxahcoNgNLBQvxiYX02Gju8ZfiwSFaRDI08UYmpKw6-s94F8nwrZW8hcqnv7I7oM-c_m2WuroTWVEngr7tiJIsergGMGPJm1kUSL_YifVfkcANYEScl1pxjMGDLT_OpBtMSQpYkQxkmkxp2AVC_nY1hCfHKzPSo4sPMVBpCIct4peB--Kl9cTaN0MpxPcUiCaaIJgwJVqbkpi4E3elFQNma0pOwEQInwcW89WWfDU0etSwcpMjg_QLacZIXDnjjOsxrKVf6RQ"/>
+</div>
+<p class="label-text text-[10px] uppercase font-semibold tracking-widest text-tertiary">Accessories</p>
+<h4 class="font-headline font-bold text-sm mt-1 leading-tight">Brass Geometric Marker</h4>
+<p class="text-primary font-bold mt-2">$12.00</p>
+</button>
+<!-- Empty Placeholder for "More" -->
+<button class="group bg-surface-container border-2 border-dashed border-outline-variant/30 p-4 rounded-xl flex flex-col items-center justify-center text-outline hover:border-primary/50 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-4xl mb-2">add_circle</span>
+<span class="label-text text-[10px] uppercase font-bold tracking-widest">Custom Entry</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Right Column: Active Transaction -->
+<aside class="lg:col-span-5 flex flex-col gap-6">
+<!-- Transaction Header -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm space-y-6">
+<div class="flex justify-between items-start border-b border-surface-container pb-4">
+<div>
+<h2 class="text-xl font-headline font-black">Active Transaction</h2>
+<p class="label-text text-xs text-secondary mt-1">#TRX-88294 • FEB 24, 2024</p>
+</div>
+<button class="text-error bg-error-container/20 p-2 rounded-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined">delete_sweep</span>
+</button>
+</div>
+<!-- Customer Selection -->
+<div class="space-y-2">
+<label class="label-text text-[10px] uppercase font-bold tracking-widest text-secondary">Select Patron</label>
+<div class="flex gap-2">
+<div class="relative flex-grow">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-tertiary text-lg">person</span>
+<select class="w-full pl-10 pr-4 py-3 bg-surface border-none ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary rounded-xl text-sm appearance-none">
+<option>Walk-in Patron</option>
+<option>Marcus Aurelius (Premium)</option>
+<option>Virginia Woolf (Curator)</option>
+<option>James Joyce (Standard)</option>
+</select>
+</div>
+<button class="bg-secondary-container text-on-secondary-container px-4 rounded-xl hover:bg-surface-dim transition-colors">
+<span class="material-symbols-outlined">person_add</span>
+</button>
+</div>
+</div>
+<!-- Item List -->
+<div class="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+<!-- Item 1 -->
+<div class="flex items-center gap-4 bg-surface-container-low p-3 rounded-xl">
+<div class="w-12 h-12 bg-surface-container rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Book spine detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgpM4C9VEdB8bufrEvqFkp43gwiNYi5tvodj_oJtfqE6ONFYkk0e1m7theSHjJwRWThGdXHbQOtE_yUGHJ2qcSTy2DD5qrUq6WGpszHFFaf_Spc5fuNXYPj6GNrnGSjZQIxfzdeEi_Srtqbj-qduXSuMVSpG_KEJW_O-mxN0_10_9qlfikZsWQn91K9mGVOKdTnL7_8qqmb5tozYR31Y2HUsJ2V97qAlIGgcCM5UfttwUkwL3_gKvRAKtWYrWdv9Z48K55ztyLxag"/>
+</div>
+<div class="flex-grow">
+<h5 class="text-sm font-headline font-bold">The Odyssey (1924 Ed.)</h5>
+<p class="text-xs text-secondary">Rare Editions</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-sm font-bold text-primary">$245.00</span>
+<div class="flex items-center bg-white rounded-lg ring-1 ring-outline-variant/10">
+<button class="px-2 py-1 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-xs">remove</span></button>
+<span class="px-2 text-xs font-bold">1</span>
+<button class="px-2 py-1 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-xs">add</span></button>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-4 bg-surface-container-low p-3 rounded-xl">
+<div class="w-12 h-12 bg-surface-container rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Fountain pen nib" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB48XRwS09Rd1h8QNhCqUXefBj43vxKfgoD-UQKdFnvNFKzcaBHR4-yfBRzh46Iw87zfZoesD9X3s4lUirj4Tw_ZgbH5wG7posW-7WeuICAEDV9VQGBWtXfp6ZZhmmoFbAn2wtInHL9rhMzdN9FEtGqMa0GJlpvVQ6ehlHgSpqnOhy9tLZFzlqh9M5BC_1KVOJNJYv66wV0SnS3SOLkZ48_5mOLPx2y2hDZu4s2newQVHvR1-RpTpSsBLNG4gvqk_RhejB4h7j6vjY"/>
+</div>
+<div class="flex-grow">
+<h5 class="text-sm font-headline font-bold">Lamy Safari - Azure</h5>
+<p class="text-xs text-secondary">Stationery</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-sm font-bold text-primary">$64.00</span>
+<div class="flex items-center bg-white rounded-lg ring-1 ring-outline-variant/10">
+<button class="px-2 py-1 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-xs">remove</span></button>
+<span class="px-2 text-xs font-bold">2</span>
+<button class="px-2 py-1 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-xs">add</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Discount Section -->
+<div class="pt-4 border-t border-surface-container space-y-3">
+<div class="flex items-center justify-between">
+<label class="label-text text-[10px] uppercase font-bold tracking-widest text-secondary">Discounts</label>
+<button class="text-[10px] font-bold text-primary uppercase">Add Coupon</button>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">$</span>
+<input class="w-full pl-7 pr-4 py-2 bg-surface border-none ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary rounded-lg text-sm" placeholder="Amount" type="number"/>
+</div>
+<div class="relative">
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">%</span>
+<input class="w-full px-4 py-2 bg-surface border-none ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary rounded-lg text-sm" placeholder="Percent" type="number"/>
+</div>
+</div>
+</div>
+<!-- Totals Summary -->
+<div class="bg-surface-container-low p-6 rounded-xl space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Subtotal</span>
+<span class="font-bold">$309.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Discount</span>
+<span class="font-bold text-error">-$15.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Archival Tax (2%)</span>
+<span class="font-bold">$5.88</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-surface-container">
+<span class="font-headline font-black text-xl">Total Amount</span>
+<span class="font-headline font-black text-2xl text-primary">$299.88</span>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="w-full py-5 rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline font-bold text-lg shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">payments</span>
+                    Process Payment
+                </button>
+</div>
+</aside>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-[0_-8px_30px_rgb(0,0,0,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-600 dark:hover:text-blue-300 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">dashboard_customize</span>
+<span class="font-['Public_Sans'] text-[10px] uppercase font-semibold tracking-wider mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-600 dark:hover:text-blue-300 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-['Public_Sans'] text-[10px] uppercase font-semibold tracking-wider mt-1">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl px-4 py-2 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-['Public_Sans'] text-[10px] uppercase font-semibold tracking-wider mt-1">Sales</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-600 dark:hover:text-blue-300 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Public_Sans'] text-[10px] uppercase font-semibold tracking-wider mt-1">Patrons</span>
+</a>
+</nav>
+</body></html>
