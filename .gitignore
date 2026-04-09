@@ -1,0 +1,97 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE settings
+.idea/
+.vscode/
+.vs/
+*.iml
+*.ipr
+*.iws
+
+# .NET / Visual Studio
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+project.lock.json
+project.fragment.lock.json
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.pidb
+*.svclog
+*.scc
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# ASP.NET / app config
+appsettings.Production.json
+*.secret.*
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub/
+.pub-cache/
+.packages
+build/
+coverage/
+**/doc/api/
+
+# Android / Flutter desktop artifacts
+.gradle/
+.cxx/
+captures/
+GeneratedPluginRegistrant.java
+flutter_*.log
+**/*.keystore
+**/*.jks
+key.properties
+
+# iOS / macOS Flutter artifacts
+DerivedData/
+**/DerivedData/
+**/Pods/
+**/.symlinks/
+**/.vagrant/
+**/.generated/
+Flutter/ephemeral/
+Flutter/app.flx
+Flutter/app.zip
+Flutter/flutter_assets/
+Flutter/flutter_export_environment.sh
+Flutter/Flutter.framework
+Flutter/App.framework
+Flutter/Flutter.podspec
+Flutter/Generated.xcconfig
+Runner/GeneratedPluginRegistrant.*
+
+# Flutter build byproducts
+app.*.symbols
+app.*.map.json
+**/ios/Flutter/.last_build_id
+
+# Miscellaneous
+*.log
+*.pyc
+*.swp
+*.tmp
+*.bak
+migrate_working_dir/
+.history
+.svn/
+.atom/
+.build/
+.buildlog/
