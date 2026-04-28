@@ -7,11 +7,13 @@ class StatCardsRow extends StatelessWidget {
   final double totalSales, avgOrder;
   final int txCount;
   final NumberFormat currency;
+  final bool compactNumbers;
   const StatCardsRow({
     required this.totalSales,
     required this.txCount,
     required this.avgOrder,
     required this.currency,
+    this.compactNumbers = false,
   });
 
   @override
@@ -25,8 +27,7 @@ class StatCardsRow extends StatelessWidget {
                 label: 'TOTAL SALES',
                 value: currency.format(totalSales),
                 icon: Icons.payments_outlined,
-                trend: '+14% vs yesterday',
-                trendUp: true,
+                valueFontSize: compactNumbers ? 24 : 30,
               ),
             ),
             const SizedBox(width: 12),
@@ -35,8 +36,6 @@ class StatCardsRow extends StatelessWidget {
                 label: 'TRANSACTIONS',
                 value: '$txCount',
                 icon: Icons.receipt_outlined,
-                trend: 'Stable volume',
-                trendUp: null,
               ),
             ),
           ],
@@ -46,9 +45,8 @@ class StatCardsRow extends StatelessWidget {
           label: 'AVG. ORDER VALUE',
           value: currency.format(avgOrder),
           icon: Icons.calculate_outlined,
-          trend: 'High quality cohort',
-          trendUp: true,
           accent: AppColors.tertiary,
+          valueFontSize: compactNumbers ? 24 : 30,
         ),
       ],
     );

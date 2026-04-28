@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import 'sale_row.dart';
 
 class RecentSalesTable extends StatelessWidget {
   final List sales;
-  final NumberFormat currency;
-  const RecentSalesTable({required this.sales, required this.currency});
+  const RecentSalesTable({required this.sales});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +37,7 @@ class RecentSalesTable extends StatelessWidget {
             ),
           ),
           const Divider(height: 1),
-          ...sales.map((s) => SaleRow(sale: s, currency: currency)),
+          ...sales.map((s) => SaleRow(sale: s)),
         ],
       ),
     );

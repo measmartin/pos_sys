@@ -3,17 +3,16 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 
 class StatCard extends StatelessWidget {
-  final String label, value, trend;
+  final String label, value;
   final IconData icon;
-  final bool? trendUp;
   final Color accent;
+  final double valueFontSize;
   const StatCard({
     required this.label,
     required this.value,
     required this.icon,
-    required this.trend,
-    required this.trendUp,
     this.accent = AppColors.primary,
+    this.valueFontSize = 30,
   });
 
   @override
@@ -53,34 +52,10 @@ class StatCard extends StatelessWidget {
           Text(
             value,
             style: GoogleFonts.notoSerif(
-              fontSize: 30,
+              fontSize: valueFontSize,
               fontWeight: FontWeight.w900,
               color: AppColors.onSurface,
             ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              if (trendUp != null)
-                Icon(
-                  trendUp! ? Icons.trending_up : Icons.trending_down,
-                  size: 14,
-                  color: trendUp! ? AppColors.primary : AppColors.error,
-                ),
-              if (trendUp != null) const SizedBox(width: 4),
-              Text(
-                trend,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: trendUp == true
-                      ? AppColors.primary
-                      : trendUp == false
-                      ? AppColors.error
-                      : AppColors.secondary,
-                ),
-              ),
-            ],
           ),
         ],
       ),

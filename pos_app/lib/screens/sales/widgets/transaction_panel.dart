@@ -25,6 +25,8 @@ class _TransactionPanelState extends State<TransactionPanel> {
   final _amtPaidCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   bool _amountPaidManuallyEdited = false;
+  bool _isPatronSectionExpanded = true;
+  bool _isCheckoutSectionExpanded = true;
 
   @override
   void dispose() {
@@ -148,90 +150,117 @@ class _TransactionPanelState extends State<TransactionPanel> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'SELECT PATRON',
-                style: GoogleFonts.publicSans(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.5,
-                  color: AppColors.secondary,
-                ),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<int?>(
-                initialValue: s.selectedCustomer?.customerId,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.person_outline,
-                    color: AppColors.tertiary,
-                    size: 18,
-                  ),
-                  filled: true,
-                  fillColor: AppColors.surfaceContainerLow,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  isDense: true,
-                ),
-                hint: Text(
-                  'Walk-in Patron',
-                  style: GoogleFonts.inter(fontSize: 13),
-                ),
-                items: [
-                  DropdownMenuItem(
-                    value: null,
-                    child: Text(
-                      'Walk-in Patron',
-                      style: GoogleFonts.inter(fontSize: 13),
+              Row(
+                children: [
+                  Text(
+                    'SELECT PATRON',
+                    style: GoogleFonts.publicSans(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.5,
+                      color: AppColors.secondary,
                     ),
                   ),
-                  ...s.customers.map(
-                    (c) => DropdownMenuItem(
-                      value: c.customerId,
+                  const Spacer(),
+                  IconButton(
+                    tooltip: _isPatronSectionExpanded
+                        ? 'Collapse patron'
+                        : 'Expand patron',
+                    onPressed: () => setState(
+                      () => _isPatronSectionExpanded = !_isPatronSectionExpanded,
+                    ),
+                    icon: Icon(
+                      _isPatronSectionExpanded
+                          ? Icons.expand_less
+                          : Icons.expand_more,
+                      size: 18,
+                    ),
+                    color: AppColors.secondary,
+                    constraints: const BoxConstraints(
+                      minWidth: 28,
+                      minHeight: 28,
+                    ),
+                    padding: EdgeInsets.zero,
+                  ),
+                ],
+              ),
+              if (_isPatronSectionExpanded) ...[
+                const SizedBox(height: 6),
+                DropdownButtonFormField<int?>(
+                  initialValue: s.selectedCustomer?.customerId,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                      color: AppColors.tertiary,
+                      size: 18,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.surfaceContainerLow,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    isDense: true,
+                  ),
+                  hint: Text(
+                    'Walk-in Patron',
+                    style: GoogleFonts.inter(fontSize: 13),
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: null,
                       child: Text(
-                        c.displayName,
+                        'Walk-in Patron',
                         style: GoogleFonts.inter(fontSize: 13),
                       ),
                     ),
-                  ),
-                ],
-                onChanged: (v) {
-                  s.setSelectedCustomer(
-                    v == null
-                        ? null
-                        : s.customers.firstWhere((c) => c.customerId == v),
-                  );
-                  _phoneCtrl.text = s.customerPhone;
-                },
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _phoneCtrl,
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-\s()]')),
-                ],
-                decoration: InputDecoration(
-                  labelText: 'Phone Number *',
-                  hintText: 'Required for online orders',
-                  prefixIcon: const Icon(
-                    Icons.phone_outlined,
-                    color: AppColors.tertiary,
-                    size: 18,
-                  ),
-                  filled: true,
-                  fillColor: AppColors.surfaceContainerLow,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  isDense: true,
+                    ...s.customers.map(
+                      (c) => DropdownMenuItem(
+                        value: c.customerId,
+                        child: Text(
+                          c.displayName,
+                          style: GoogleFonts.inter(fontSize: 13),
+                        ),
+                      ),
+                    ),
+                  ],
+                  onChanged: (v) {
+                    s.setSelectedCustomer(
+                      v == null
+                          ? null
+                          : s.customers.firstWhere((c) => c.customerId == v),
+                    );
+                    _phoneCtrl.text = s.customerPhone;
+                  },
                 ),
-                onChanged: s.setCustomerPhone,
-              ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-\s()]')),
+                  ],
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number *',
+                    hintText: 'Required for online orders',
+                    prefixIcon: const Icon(
+                      Icons.phone_outlined,
+                      color: AppColors.tertiary,
+                      size: 18,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.surfaceContainerLow,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    isDense: true,
+                  ),
+                  onChanged: s.setCustomerPhone,
+                ),
+              ],
             ],
           ),
         ),
@@ -290,259 +319,323 @@ class _TransactionPanelState extends State<TransactionPanel> {
             ),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           child: Column(
             children: [
-              // Discounts row
-              if (s.cart.isNotEmpty) ...[
-                Row(
-                  children: [
-                    Text(
-                      'DISCOUNTS',
-                      style: GoogleFonts.publicSans(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                        color: AppColors.secondary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _discountAmtCtrl,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
-                        ],
-                        decoration: InputDecoration(
-                          hintText: 'Amount',
-                          prefixText: '\$ ',
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          isDense: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: AppColors.outlineVariant.withOpacity(0.5),
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: AppColors.outlineVariant.withOpacity(0.4),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                        ),
-                        onChanged: (v) => s.setDiscount(
-                          amount: double.tryParse(v) ?? 0,
-                          percentage: 0,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _discountPctCtrl,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
-                        ],
-                        decoration: InputDecoration(
-                          hintText: 'Percent',
-                          suffixText: '%',
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          isDense: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: AppColors.outlineVariant.withOpacity(0.5),
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: AppColors.outlineVariant.withOpacity(0.4),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                        ),
-                        onChanged: (v) => s.setDiscount(
-                          amount: 0,
-                          percentage: double.tryParse(v) ?? 0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-              ],
-
-              // Totals
-              TotalRow('Subtotal', c.format(s.cartSubtotal)),
-              if (s.effectiveDiscount > 0)
-                TotalRow(
-                  'Discount',
-                  '−${c.format(s.effectiveDiscount)}',
-                  isDiscount: true,
-                ),
-              const Divider(height: 16),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Total Amount',
-                    style: GoogleFonts.notoSerif(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
+                    'CHECKOUT',
+                    style: GoogleFonts.publicSans(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.5,
+                      color: AppColors.secondary,
                     ),
                   ),
-                  Text(
-                    c.format(s.cartTotal),
-                    style: GoogleFonts.notoSerif(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.primary,
+                  const Spacer(),
+                  IconButton(
+                    tooltip: _isCheckoutSectionExpanded
+                        ? 'Collapse checkout'
+                        : 'Expand checkout',
+                    onPressed: () => setState(
+                      () =>
+                          _isCheckoutSectionExpanded = !_isCheckoutSectionExpanded,
                     ),
+                    icon: Icon(
+                      _isCheckoutSectionExpanded
+                          ? Icons.expand_less
+                          : Icons.expand_more,
+                      size: 18,
+                    ),
+                    color: AppColors.secondary,
+                    constraints: const BoxConstraints(
+                      minWidth: 28,
+                      minHeight: 28,
+                    ),
+                    padding: EdgeInsets.zero,
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-
-              if (s.cart.isNotEmpty) ...[
-                DropdownButtonFormField<String>(
-                  initialValue: s.paymentStatus,
-                  decoration: InputDecoration(
-                    labelText: 'Payment Status',
-                    filled: true,
-                    fillColor: AppColors.surface,
-                    isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: AppColors.outlineVariant.withOpacity(0.5),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: AppColors.outlineVariant.withOpacity(0.4),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'PAID', child: Text('Completed')),
-                    DropdownMenuItem(value: 'PARTIAL', child: Text('Partial')),
-                    DropdownMenuItem(value: 'UNPAID', child: Text('Unpaid')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      s.setPaymentStatus(value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
-              ],
-
-              // Amount paid
-              if (s.cart.isNotEmpty) ...[
-                TextField(
-                  controller: _amtPaidCtrl,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'Amount Paid',
-                    prefixText: '\$ ',
-                    filled: true,
-                    fillColor: AppColors.surface,
-                    isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: AppColors.outlineVariant.withOpacity(0.5),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: AppColors.outlineVariant.withOpacity(0.4),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                  ),
-                  onChanged: (v) {
-                    _amountPaidManuallyEdited = true;
-                    s.setAmountPaid(double.tryParse(v) ?? 0);
-                  },
-                ),
-                if (s.changeAmount > 0)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Change: ',
-                          style: GoogleFonts.inter(
-                            color: AppColors.secondary,
-                            fontSize: 13,
-                          ),
+              ClipRect(
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeInOut,
+                  alignment: Alignment.topCenter,
+                  clipBehavior: Clip.hardEdge,
+                  child: _isCheckoutSectionExpanded
+                      ? Column(
+                          children: [
+                            // Discounts row
+                            if (s.cart.isNotEmpty) ...[
+                              Row(
+                                children: [
+                                  Text(
+                                    'DISCOUNTS',
+                                    style: GoogleFonts.publicSans(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 1.5,
+                                      color: AppColors.secondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _discountAmtCtrl,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
+                                      ],
+                                      decoration: InputDecoration(
+                                        hintText: 'Amount',
+                                        prefixText: '\$ ',
+                                        filled: true,
+                                        fillColor: AppColors.surface,
+                                        isDense: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: AppColors.outlineVariant.withOpacity(0.5),
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: AppColors.outlineVariant.withOpacity(0.4),
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 8,
+                                        ),
+                                      ),
+                                      onChanged: (v) => s.setDiscount(
+                                        amount: double.tryParse(v) ?? 0,
+                                        percentage: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _discountPctCtrl,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
+                                      ],
+                                      decoration: InputDecoration(
+                                        hintText: 'Percent',
+                                        suffixText: '%',
+                                        filled: true,
+                                        fillColor: AppColors.surface,
+                                        isDense: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: AppColors.outlineVariant.withOpacity(0.5),
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: AppColors.outlineVariant.withOpacity(0.4),
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 8,
+                                        ),
+                                      ),
+                                      onChanged: (v) => s.setDiscount(
+                                        amount: 0,
+                                        percentage: double.tryParse(v) ?? 0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            TotalRow('Subtotal', c.format(s.cartSubtotal)),
+                            if (s.effectiveDiscount > 0)
+                              TotalRow(
+                                'Discount',
+                                '−${c.format(s.effectiveDiscount)}',
+                                isDiscount: true,
+                              ),
+                            const Divider(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Total Amount',
+                                  style: GoogleFonts.notoSerif(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                Text(
+                                  c.format(s.cartTotal),
+                                  style: GoogleFonts.notoSerif(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            if (s.cart.isNotEmpty) ...[
+                              DropdownButtonFormField<String>(
+                                initialValue: s.paymentStatus,
+                                decoration: InputDecoration(
+                                  labelText: 'Payment Status',
+                                  filled: true,
+                                  fillColor: AppColors.surface,
+                                  isDense: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.outlineVariant.withOpacity(0.5),
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.outlineVariant.withOpacity(0.4),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(color: AppColors.primary),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: 'PAID', child: Text('Completed')),
+                                  DropdownMenuItem(value: 'PARTIAL', child: Text('Partial')),
+                                  DropdownMenuItem(value: 'UNPAID', child: Text('Unpaid')),
+                                ],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    s.setPaymentStatus(value);
+                                  }
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: _amtPaidCtrl,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
+                                ],
+                                decoration: InputDecoration(
+                                  labelText: 'Amount Paid',
+                                  prefixText: '\$ ',
+                                  filled: true,
+                                  fillColor: AppColors.surface,
+                                  isDense: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.outlineVariant.withOpacity(0.5),
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.outlineVariant.withOpacity(0.4),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(color: AppColors.primary),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                ),
+                                onChanged: (v) {
+                                  _amountPaidManuallyEdited = true;
+                                  s.setAmountPaid(double.tryParse(v) ?? 0);
+                                },
+                              ),
+                              if (s.changeAmount > 0)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        'Change: ',
+                                        style: GoogleFonts.inter(
+                                          color: AppColors.secondary,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      Text(
+                                        c.format(s.changeAmount),
+                                        style: GoogleFonts.inter(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              const SizedBox(height: 8),
+                            ],
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Total',
+                                  style: GoogleFonts.notoSerif(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  c.format(s.cartTotal),
+                                  style: GoogleFonts.notoSerif(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                          ],
                         ),
-                        Text(
-                          c.format(s.changeAmount),
-                          style: GoogleFonts.inter(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                const SizedBox(height: 12),
-              ],
-
-              // Process button
+                ),
+              ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -565,7 +658,7 @@ class _TransactionPanelState extends State<TransactionPanel> {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.onPrimary,
                     shape: RoundedRectangleBorder(
@@ -575,7 +668,7 @@ class _TransactionPanelState extends State<TransactionPanel> {
                     elevation: 4,
                   ),
                 ),
-              ),
+               ),
             ],
           ),
         ),
@@ -648,7 +741,13 @@ class _TransactionPanelState extends State<TransactionPanel> {
   }
 
   void _showSuccessDialog(dynamic sale) {
-    final c = NumberFormat.currency(symbol: r'$');
+    final selectedCurrency = widget.selectedCurrency;
+    final c = NumberFormat.currency(
+      symbol:
+          selectedCurrency?.currencySymbol ??
+          selectedCurrency?.currencyCode ??
+          r'$',
+    );
     showDialog(
       context: context,
       builder: (_) => AlertDialog(

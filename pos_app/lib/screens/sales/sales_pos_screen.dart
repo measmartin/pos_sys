@@ -20,6 +20,7 @@ class SalesPosScreen extends StatefulWidget {
 class _SalesPosScreenState extends State<SalesPosScreen> {
   final _searchCtrl = TextEditingController();
   String _productSearch = '';
+  bool _isTransactionCollapsed = false;
 
   @override
   void initState() {
@@ -86,6 +87,10 @@ class _SalesPosScreenState extends State<SalesPosScreen> {
           availableUnits: product.units,
         ),
       );
+      final isWideLayout = MediaQuery.sizeOf(context).width >= 900;
+      if (isWideLayout && !_isTransactionCollapsed) {
+        setState(() => _isTransactionCollapsed = true);
+      }
     }
 
     return Scaffold(
@@ -165,8 +170,10 @@ class _SalesPosScreenState extends State<SalesPosScreen> {
                   selectedCurrency: selectedCurrency,
                 ),
               ),
-              Container(
-                width: 340,
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeInOut,
+                width: _isTransactionCollapsed ? 56 : 340,
                 decoration: const BoxDecoration(
                   color: AppColors.surfaceContainerLowest,
                   border: Border(
@@ -176,9 +183,41 @@ class _SalesPosScreenState extends State<SalesPosScreen> {
                     ),
                   ),
                 ),
-                child: TransactionPanel(
-                  sales: sales,
-                  selectedCurrency: selectedCurrency,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  switchInCurve: Curves.easeOut,
+                  switchOutCurve: Curves.easeIn,
+                  child: _isTransactionCollapsed
+                      ? _CollapsedTransactionRail(
+                          key: const ValueKey('collapsed-transaction'),
+                          itemCount: sales.cart.length,
+                          onExpand: () =>
+                              setState(() => _isTransactionCollapsed = false),
+                        )
+                      : Column(
+                          key: const ValueKey('expanded-transaction'),
+                          children: [
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: IconButton(
+                                tooltip: 'Collapse transaction',
+                                icon: const Icon(
+                                  Icons.keyboard_double_arrow_right,
+                                ),
+                                color: AppColors.secondary,
+                                onPressed: () => setState(
+                                  () => _isTransactionCollapsed = true,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: TransactionPanel(
+                                sales: sales,
+                                selectedCurrency: selectedCurrency,
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ],
@@ -223,6 +262,43 @@ class _SalesPosScreenState extends State<SalesPosScreen> {
         ],
       ),
       actions: const [],
+    );
+  }
+}
+
+class _CollapsedTransactionRail extends StatelessWidget {
+  final int itemCount;
+  final VoidCallback onExpand;
+
+  const _CollapsedTransactionRail({
+    super.key,
+    required this.itemCount,
+    required this.onExpand,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: 'Expand transaction',
+            icon: const Icon(Icons.receipt_long_rounded),
+            color: AppColors.primary,
+            onPressed: onExpand,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$itemCount',
+            style: GoogleFonts.publicSans(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.secondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

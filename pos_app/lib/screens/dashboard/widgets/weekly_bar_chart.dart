@@ -5,7 +5,11 @@ import '../../../core/theme/app_theme.dart';
 
 class WeeklyBarChart extends StatelessWidget {
   final List<dynamic> data;
-  const WeeklyBarChart({required this.data});
+  final String currencySymbol;
+  const WeeklyBarChart({
+    required this.data,
+    this.currencySymbol = r'$',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +35,7 @@ class WeeklyBarChart extends StatelessWidget {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 final d = data[groupIndex];
                 return BarTooltipItem(
-                  '\$${(d['amount'] as num).toStringAsFixed(0)}',
+                  '$currencySymbol${(d['amount'] as num).toStringAsFixed(0)}',
                   GoogleFonts.inter(
                     color: AppColors.inverseOnSurface,
                     fontWeight: FontWeight.w600,

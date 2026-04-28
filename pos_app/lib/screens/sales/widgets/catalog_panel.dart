@@ -94,7 +94,7 @@ class CatalogPanel extends StatelessWidget {
               : GridView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
+                    crossAxisCount: 2,
                     childAspectRatio: 0.85,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,

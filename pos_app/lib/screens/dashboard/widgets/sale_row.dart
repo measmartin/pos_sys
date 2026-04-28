@@ -5,11 +5,15 @@ import '../../../core/theme/app_theme.dart';
 
 class SaleRow extends StatelessWidget {
   final dynamic sale;
-  final NumberFormat currency;
-  const SaleRow({required this.sale, required this.currency});
+  const SaleRow({required this.sale});
 
   @override
   Widget build(BuildContext context) {
+    final isKhr = (sale.currencyCode ?? '').toUpperCase() == 'KHR';
+    final rowCurrency = NumberFormat.currency(
+      symbol: sale.currencySymbol ?? sale.currencyCode ?? r'$',
+      decimalDigits: isKhr ? 0 : 2,
+    );
     final status = sale.paymentStatus as String;
     final statusColor = status == 'PAID'
         ? AppColors.primary
@@ -85,7 +89,7 @@ class SaleRow extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Text(
-                currency.format(sale.totalAmount),
+                rowCurrency.format(sale.totalAmount),
                 textAlign: TextAlign.right,
                 style: GoogleFonts.notoSerif(
                   fontSize: 14,

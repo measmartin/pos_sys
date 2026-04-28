@@ -58,31 +58,36 @@ class CatalogCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceContainer,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: unit?.imageUrl != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: DecoratedBox(
+                        decoration: const BoxDecoration(
+                          color: AppColors.surfaceContainer,
+                        ),
+                        child: unit?.imageUrl != null
+                            ? Image.network(
                                 unit!.imageUrl!,
+                                width: double.infinity,
+                                height: double.infinity,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => const Icon(
+                                errorBuilder: (_, _, _) => const Center(
+                                  child: Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: 32,
+                                    color: AppColors.outlineVariant,
+                                  ),
+                                ),
+                              )
+                            : const Center(
+                                child: Icon(
                                   Icons.inventory_2_outlined,
                                   size: 32,
                                   color: AppColors.outlineVariant,
                                 ),
                               ),
-                            )
-                          : const Icon(
-                              Icons.inventory_2_outlined,
-                              size: 32,
-                              color: AppColors.outlineVariant,
-                            ),
+                      ),
                     ),
                     if (isInTransaction)
                       Positioned(

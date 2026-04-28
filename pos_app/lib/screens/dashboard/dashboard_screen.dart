@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/dashboard_provider.dart';
-import '../../providers/sales_provider.dart';
 import '../settings/settings_screen.dart';
 import 'widgets/stat_cards_row.dart';
 import 'widgets/weekly_bar_chart.dart';
@@ -24,15 +23,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DashboardProvider>().load();
-      context.read<SalesProvider>().loadSales();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final dash = context.watch<DashboardProvider>();
-    final sales = context.watch<SalesProvider>();
-    final currency = NumberFormat.currency(symbol: r'$');
+    final currency = NumberFormat.currency(
+      symbol: dash.activeCurrencySymbol,
+      decimalDigits: dash.currencyView == DashboardCurrencyView.khr ? 0 : 2,
+    );
     final now = DateTime.now();
     final dateStr = DateFormat(
       'EEEE, d\'${_ordinal(now.day)}\' of MMMM, yyyy',
@@ -94,8 +94,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     txCount: dash.transactionCount,
                     avgOrder: dash.avgOrderValue,
                     currency: currency,
+                    compactNumbers:
+                        dash.currencyView == DashboardCurrencyView.khr,
                   ),
 
+                const SizedBox(height: 14),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: SegmentedButton<DashboardCurrencyView>(
+                    segments: const [
+                      ButtonSegment(
+                        value: DashboardCurrencyView.usd,
+                        label: Text('USD'),
+                      ),
+                      ButtonSegment(
+                        value: DashboardCurrencyView.khr,
+                        label: Text('KHR'),
+                      ),
+                      ButtonSegment(
+                        value: DashboardCurrencyView.both,
+                        label: Text('BOTH'),
+                      ),
+                    ],
+                    selected: {dash.currencyView},
+                    onSelectionChanged: (selection) =>
+                        dash.setCurrencyView(selection.first),
+                  ),
+                ),
+                if (dash.currencyView == DashboardCurrencyView.both)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        dash.bothRateLabel == null
+                            ? 'Combined values shown as ${dash.activeCurrencyLabel}'
+                            : 'Combined values shown as ${dash.activeCurrencyLabel} • ${dash.bothRateLabel}',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: AppColors.secondary,
+                        ),
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 28),
 
                 // Weekly chart title
@@ -122,7 +163,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                WeeklyBarChart(data: dash.weeklyData),
+                WeeklyBarChart(
+                  data: dash.weeklyData,
+                  currencySymbol: dash.activeCurrencySymbol,
+                ),
                 const SizedBox(height: 32),
 
                 // Quick actions
@@ -163,14 +207,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                if (sales.loading)
+                if (dash.loading)
                   const Center(child: CircularProgressIndicator())
-                else if (sales.sales.isEmpty)
+                else if (dash.recentSales.isEmpty)
                   const EmptySales()
                 else
                   RecentSalesTable(
-                    sales: sales.sales.take(5).toList(),
-                    currency: currency,
+                    sales: dash.recentSales.take(5).toList(),
                   ),
               ]),
             ),
@@ -207,23 +250,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       actions: [
-        Container(
-          margin: const EdgeInsets.only(right: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            'Terminal A-12',
-            style: GoogleFonts.publicSans(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
         IconButton(
           icon: const Icon(Icons.settings_outlined),
           color: AppColors.onSurface,
