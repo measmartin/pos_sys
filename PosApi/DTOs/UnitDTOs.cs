@@ -26,3 +26,11 @@ public class UnitDetailsDto
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }
+
+public class UnitPagedResponseDto
+{
+    public IEnumerable<UnitDetailsDto> Data { get; set; } = Enumerable.Empty<UnitDetailsDto>();
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+    public int TotalCount { get; set; }
+}

@@ -28,7 +28,7 @@ class WeeklyBarChart extends StatelessWidget {
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: maxVal * 1.15,
+          maxY: (maxVal * 1.15).clamp(1, double.infinity),
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
               getTooltipColor: (_) => AppColors.inverseSurface,
@@ -83,7 +83,7 @@ class WeeklyBarChart extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            horizontalInterval: maxVal / 4,
+            horizontalInterval: (maxVal / 4).clamp(1, double.infinity),
             getDrawingHorizontalLine: (_) => FlLine(
               color: AppColors.outlineVariant.withOpacity(0.3),
               strokeWidth: 1,

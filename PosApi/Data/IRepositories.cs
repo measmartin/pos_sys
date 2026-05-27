@@ -5,6 +5,11 @@ namespace PosApi.Data;
 public interface ICategoryRepository
 {
     Task<IEnumerable<Category>> GetAllAsync();
+    Task<(IEnumerable<Category> Items, int TotalCount)> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive);
     Task<Category?> GetByIdAsync(int id);
     Task<int> CreateAsync(Category category);
     Task<bool> UpdateAsync(Category category);
@@ -14,6 +19,11 @@ public interface ICategoryRepository
 public interface IUnitRepository
 {
     Task<IEnumerable<Unit>> GetAllAsync();
+    Task<(IEnumerable<Unit> Items, int TotalCount)> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive);
     Task<Unit?> GetByIdAsync(int id);
     Task<int> CreateAsync(Unit unit);
     Task<bool> UpdateAsync(Unit unit);
@@ -39,6 +49,12 @@ public interface IProductRepository
 public interface IProductUnitRepository
 {
     Task<IEnumerable<ProductUnit>> GetAllAsync();
+    Task<(IEnumerable<ProductUnit> Items, int TotalCount)> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        int? productId,
+        bool? isActive);
     Task<ProductUnit?> GetByIdAsync(int id);
     Task<IEnumerable<ProductUnit>> GetByProductIdAsync(int productId);
     Task<int> CreateAsync(ProductUnit productUnit);
@@ -65,6 +81,11 @@ public interface ICustomerRepository
 public interface ICurrencyRepository
 {
     Task<IEnumerable<Currency>> GetAllAsync();
+    Task<(IEnumerable<Currency> Items, int TotalCount)> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive);
     Task<Currency?> GetByIdAsync(int id);
     Task<Currency?> GetByCodeAsync(string code);
     Task<Currency?> GetBaseCurrencyAsync();

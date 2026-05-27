@@ -38,6 +38,14 @@ public class ProductUnitWithDetailsDto
     public string? ImageUrl { get; set; }
 }
 
+public class ProductUnitPagedResponseDto
+{
+    public IEnumerable<ProductUnitDetailsDto> Data { get; set; } = Enumerable.Empty<ProductUnitDetailsDto>();
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+    public int TotalCount { get; set; }
+}
+
 public class ProductUnitDetailsDto
 {
     public int ProductUnitId { get; set; }

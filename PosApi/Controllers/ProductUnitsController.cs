@@ -15,10 +15,19 @@ public class ProductUnitsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProductUnitDetailsDto>>> GetAll()
+    public async Task<ActionResult<ProductUnitPagedResponseDto>> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] int? productId = null,
+        [FromQuery] bool? isActive = true)
     {
-        var productUnits = await _service.GetAllAsync();
-        return Ok(productUnits);
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 20;
+        if (pageSize > 200) pageSize = 200;
+
+        var result = await _service.GetPagedAsync(page, pageSize, search, productId, isActive);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

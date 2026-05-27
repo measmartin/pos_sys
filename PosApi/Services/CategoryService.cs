@@ -19,6 +19,22 @@ public class CategoryService : ICategoryService
         return categories.Select(MapToDetailsDto);
     }
 
+    public async Task<CategoryPagedResponseDto> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive)
+    {
+        var (items, totalCount) = await _repository.GetPagedAsync(page, pageSize, search, isActive);
+        return new CategoryPagedResponseDto
+        {
+            Data = items.Select(MapToDetailsDto),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+    }
+
     public async Task<CategoryDetailsDto?> GetByIdAsync(int id)
     {
         var category = await _repository.GetByIdAsync(id);

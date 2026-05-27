@@ -25,6 +25,56 @@ public class ProductUnitRepository : IProductUnitRepository
         return await connection.QueryAsync<ProductUnit>(sql);
     }
 
+    public async Task<(IEnumerable<ProductUnit> Items, int TotalCount)> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        int? productId,
+        bool? isActive)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var offset = (page - 1) * pageSize;
+
+        var parameters = new
+        {
+            Search = string.IsNullOrWhiteSpace(search) ? null : search.Trim(),
+            ProductId = productId,
+            IsActive = isActive,
+            Offset = offset,
+            PageSize = pageSize
+        };
+
+        const string whereClause = @"
+            WHERE (@IsActive IS NULL OR pu.is_active = @IsActive)
+              AND (@ProductId IS NULL OR pu.product_id = @ProductId)
+              AND (
+                    @Search IS NULL
+                    OR p.product_name LIKE '%' + @Search + '%'
+                    OR u.unit_name LIKE '%' + @Search + '%'
+                    OR u.unit_code LIKE '%' + @Search + '%'
+                  )";
+
+        var itemsSql = $@"
+            SELECT pu.*, p.product_name AS ProductName, u.unit_name AS UnitName, u.unit_code AS UnitCode
+            FROM ProductUnit pu
+            INNER JOIN Product p ON pu.product_id = p.product_id
+            INNER JOIN Unit u ON pu.unit_id = u.unit_id
+            {whereClause}
+            ORDER BY p.product_name, u.unit_name
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;";
+
+        var countSql = $@"
+            SELECT COUNT(1)
+            FROM ProductUnit pu
+            INNER JOIN Product p ON pu.product_id = p.product_id
+            INNER JOIN Unit u ON pu.unit_id = u.unit_id
+            {whereClause};";
+
+        var items = await connection.QueryAsync<ProductUnit>(itemsSql, parameters);
+        var totalCount = await connection.ExecuteScalarAsync<int>(countSql, parameters);
+        return (items, totalCount);
+    }
+
     public async Task<ProductUnit?> GetByIdAsync(int id)
     {
         using var connection = _connectionFactory.CreateConnection();

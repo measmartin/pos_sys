@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../core/printing/printer_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/currency_provider.dart';
@@ -8,6 +9,7 @@ import '../../providers/unit_provider.dart';
 import '../categories/category_screen.dart';
 import '../currencies/currency_screen.dart';
 import '../customers/customer_screen.dart';
+import '../printer/printer_settings_screen.dart';
 import '../units/unit_screen.dart';
 import 'widgets/hub_card.dart';
 
@@ -101,6 +103,16 @@ class _ManagementHubScreenState extends State<ManagementHubScreen> {
                   icon: Icons.group_outlined,
                   accent: AppColors.secondary,
                   onTap: () => _openScreen(const CustomerScreen()),
+                ),
+                const SizedBox(height: 12),
+                HubCard(
+                  title: 'Printer',
+                  subtitle: 'Configure receipt printer',
+                  countLabel: 'Status',
+                  countValue: context.watch<PrinterProvider>().isConfigured ? 'Ready' : 'Not set',
+                  icon: Icons.print_outlined,
+                  accent: AppColors.tertiaryContainer,
+                  onTap: () => _openScreen(const PrinterSettingsScreen()),
                 ),
               ]),
             ),

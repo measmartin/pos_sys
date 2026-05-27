@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../../core/printing/printer_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/currency_model.dart';
 import '../../../providers/sales_provider.dart';
@@ -703,7 +705,34 @@ class _TransactionPanelState extends State<TransactionPanel> {
       _amtPaidCtrl.clear();
       _phoneCtrl.clear();
       _amountPaidManuallyEdited = false;
-      _showSuccessDialog(result);
+      final selCur = widget.selectedCurrency;
+      final fmt = NumberFormat.currency(
+        symbol: selCur?.currencySymbol ?? selCur?.currencyCode ?? r'$',
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Sale Complete — ${result.saleNumber} • ${fmt.format(result.totalAmount)}',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+      final printer = context.read<PrinterProvider>();
+      if (printer.autoPrint && printer.isConfigured) {
+        printer.printReceipt(result);
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -740,65 +769,4 @@ class _TransactionPanelState extends State<TransactionPanel> {
     }
   }
 
-  void _showSuccessDialog(dynamic sale) {
-    final selectedCurrency = widget.selectedCurrency;
-    final c = NumberFormat.currency(
-      symbol:
-          selectedCurrency?.currencySymbol ??
-          selectedCurrency?.currencyCode ??
-          r'$',
-    );
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check_circle_outline,
-                color: AppColors.primary,
-                size: 36,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Sale Complete!',
-              style: GoogleFonts.notoSerif(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              sale.saleNumber,
-              style: GoogleFonts.inter(color: AppColors.secondary),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              c.format(sale.totalAmount),
-              style: GoogleFonts.notoSerif(
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: AppColors.primary,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('New Sale'),
-          ),
-        ],
-      ),
-    );
   }
-}

@@ -25,6 +25,22 @@ public class CurrencyService : ICurrencyService
         return currency == null ? null : MapToDetailsDto(currency);
     }
 
+    public async Task<CurrencyPagedResponseDto> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive)
+    {
+        var (items, totalCount) = await _repository.GetPagedAsync(page, pageSize, search, isActive);
+        return new CurrencyPagedResponseDto
+        {
+            Data = items.Select(MapToDetailsDto),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+    }
+
     public async Task<CurrencyDetailsDto?> GetByCodeAsync(string code)
     {
         var currency = await _repository.GetByCodeAsync(code);

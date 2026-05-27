@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/dashboard_provider.dart';
+import '../shell/app_shell.dart';
 import '../settings/settings_screen.dart';
 import 'widgets/stat_cards_row.dart';
 import 'widgets/weekly_bar_chart.dart';
@@ -193,7 +194,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        AppShell.tabNotifier.value = 3;
+                      },
                       child: Text(
                         'View All',
                         style: GoogleFonts.publicSans(

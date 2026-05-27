@@ -30,6 +30,24 @@ public class ProductUnitService : IProductUnitService
         return productUnits.Select(productUnit => MapToDetailsDto(productUnit, baseCurrency));
     }
 
+    public async Task<ProductUnitPagedResponseDto> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        int? productId,
+        bool? isActive)
+    {
+        var (items, totalCount) = await _repository.GetPagedAsync(page, pageSize, search, productId, isActive);
+        var baseCurrency = await _currencyService.GetBaseCurrencyAsync();
+        return new ProductUnitPagedResponseDto
+        {
+            Data = items.Select(pu => MapToDetailsDto(pu, baseCurrency)),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+    }
+
     public async Task<ProductUnitDetailsDto?> GetByIdAsync(int id)
     {
         var productUnit = await _repository.GetByIdAsync(id);

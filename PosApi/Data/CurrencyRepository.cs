@@ -26,6 +26,48 @@ public class CurrencyRepository : ICurrencyRepository
         return await connection.QueryFirstOrDefaultAsync<Currency>(sql, new { Id = id });
     }
 
+    public async Task<(IEnumerable<Currency> Items, int TotalCount)> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var offset = (page - 1) * pageSize;
+
+        var parameters = new
+        {
+            Search = string.IsNullOrWhiteSpace(search) ? null : search.Trim(),
+            IsActive = isActive,
+            Offset = offset,
+            PageSize = pageSize
+        };
+
+        const string whereClause = @"
+            WHERE (@IsActive IS NULL OR is_active = @IsActive)
+              AND (
+                    @Search IS NULL
+                    OR currency_name LIKE '%' + @Search + '%'
+                    OR currency_code LIKE '%' + @Search + '%'
+                  )";
+
+        var itemsSql = $@"
+            SELECT *
+            FROM Currency
+            {whereClause}
+            ORDER BY currency_name
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;";
+
+        var countSql = $@"
+            SELECT COUNT(1)
+            FROM Currency
+            {whereClause};";
+
+        var items = await connection.QueryAsync<Currency>(itemsSql, parameters);
+        var totalCount = await connection.ExecuteScalarAsync<int>(countSql, parameters);
+        return (items, totalCount);
+    }
+
     public async Task<Currency?> GetByCodeAsync(string code)
     {
         using var connection = _connectionFactory.CreateConnection();

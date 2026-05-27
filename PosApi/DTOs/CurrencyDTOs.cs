@@ -32,3 +32,11 @@ public class CurrencyDetailsDto
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }
+
+public class CurrencyPagedResponseDto
+{
+    public IEnumerable<CurrencyDetailsDto> Data { get; set; } = Enumerable.Empty<CurrencyDetailsDto>();
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+    public int TotalCount { get; set; }
+}

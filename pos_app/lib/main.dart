@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'core/printing/printer_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'data/services/api_service.dart';
 import 'providers/connection_provider.dart';
@@ -72,6 +73,7 @@ class AmritPosApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CategoryProvider(api)),
         ChangeNotifierProvider(create: (_) => UnitProvider(api)),
         ChangeNotifierProvider(create: (_) => CurrencyProvider(api)),
+        ChangeNotifierProvider(create: (_) => PrinterProvider()),
       ],
       child: MaterialApp(
         title: 'Amrit POS',

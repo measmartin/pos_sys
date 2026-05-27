@@ -5,6 +5,11 @@ namespace PosApi.Services;
 public interface ICategoryService
 {
     Task<IEnumerable<CategoryDetailsDto>> GetAllAsync();
+    Task<CategoryPagedResponseDto> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive);
     Task<CategoryDetailsDto?> GetByIdAsync(int id);
     Task<int> CreateAsync(CreateCategoryDto dto);
     Task<bool> UpdateAsync(int id, UpdateCategoryDto dto);
@@ -14,6 +19,11 @@ public interface ICategoryService
 public interface IUnitService
 {
     Task<IEnumerable<UnitDetailsDto>> GetAllAsync();
+    Task<UnitPagedResponseDto> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive);
     Task<UnitDetailsDto?> GetByIdAsync(int id);
     Task<int> CreateAsync(CreateUnitDto dto);
     Task<bool> UpdateAsync(int id, UpdateUnitDto dto);
@@ -39,6 +49,12 @@ public interface IProductService
 public interface IProductUnitService
 {
     Task<IEnumerable<ProductUnitDetailsDto>> GetAllAsync();
+    Task<ProductUnitPagedResponseDto> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        int? productId,
+        bool? isActive);
     Task<ProductUnitDetailsDto?> GetByIdAsync(int id);
     Task<IEnumerable<ProductUnitDetailsDto>> GetByProductIdAsync(int productId);
     Task<int> CreateAsync(CreateProductUnitDto dto);
@@ -67,6 +83,11 @@ public interface ICustomerService
 public interface ICurrencyService
 {
     Task<IEnumerable<CurrencyDetailsDto>> GetAllAsync();
+    Task<CurrencyPagedResponseDto> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive);
     Task<CurrencyDetailsDto?> GetByIdAsync(int id);
     Task<CurrencyDetailsDto?> GetByCodeAsync(string code);
     Task<CurrencyDetailsDto?> GetBaseCurrencyAsync();

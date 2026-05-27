@@ -15,10 +15,18 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryDetailsDto>>> GetAll()
+    public async Task<ActionResult<CategoryPagedResponseDto>> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] bool? isActive = true)
     {
-        var categories = await _service.GetAllAsync();
-        return Ok(categories);
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 20;
+        if (pageSize > 200) pageSize = 200;
+
+        var result = await _service.GetPagedAsync(page, pageSize, search, isActive);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

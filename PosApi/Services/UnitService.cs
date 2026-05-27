@@ -19,6 +19,22 @@ public class UnitService : IUnitService
         return units.Select(MapToDetailsDto);
     }
 
+    public async Task<UnitPagedResponseDto> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive)
+    {
+        var (items, totalCount) = await _repository.GetPagedAsync(page, pageSize, search, isActive);
+        return new UnitPagedResponseDto
+        {
+            Data = items.Select(MapToDetailsDto),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+    }
+
     public async Task<UnitDetailsDto?> GetByIdAsync(int id)
     {
         var unit = await _repository.GetByIdAsync(id);

@@ -23,3 +23,11 @@ public class CategoryDetailsDto
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }
+
+public class CategoryPagedResponseDto
+{
+    public IEnumerable<CategoryDetailsDto> Data { get; set; } = Enumerable.Empty<CategoryDetailsDto>();
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+    public int TotalCount { get; set; }
+}

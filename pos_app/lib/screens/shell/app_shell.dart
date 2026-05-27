@@ -8,6 +8,7 @@ import '../sales/sales_history_screen.dart';
 import 'widgets/nav_item.dart';
 
 class AppShell extends StatefulWidget {
+  static final tabNotifier = ValueNotifier<int>(0);
   const AppShell({super.key});
   @override
   State<AppShell> createState() => _AppShellState();
@@ -15,6 +16,22 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    AppShell.tabNotifier.addListener(_onTabChanged);
+  }
+
+  @override
+  void dispose() {
+    AppShell.tabNotifier.removeListener(_onTabChanged);
+    super.dispose();
+  }
+
+  void _onTabChanged() {
+    setState(() => _index = AppShell.tabNotifier.value);
+  }
 
   static const _screens = [
     DashboardScreen(),

@@ -19,6 +19,48 @@ public class UnitRepository : IUnitRepository
         return await connection.QueryAsync<Unit>(sql);
     }
 
+    public async Task<(IEnumerable<Unit> Items, int TotalCount)> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var offset = (page - 1) * pageSize;
+
+        var parameters = new
+        {
+            Search = string.IsNullOrWhiteSpace(search) ? null : search.Trim(),
+            IsActive = isActive,
+            Offset = offset,
+            PageSize = pageSize
+        };
+
+        const string whereClause = @"
+            WHERE (@IsActive IS NULL OR is_active = @IsActive)
+              AND (
+                    @Search IS NULL
+                    OR unit_name LIKE '%' + @Search + '%'
+                    OR unit_code LIKE '%' + @Search + '%'
+                  )";
+
+        var itemsSql = $@"
+            SELECT *
+            FROM Unit
+            {whereClause}
+            ORDER BY unit_name
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;";
+
+        var countSql = $@"
+            SELECT COUNT(1)
+            FROM Unit
+            {whereClause};";
+
+        var items = await connection.QueryAsync<Unit>(itemsSql, parameters);
+        var totalCount = await connection.ExecuteScalarAsync<int>(countSql, parameters);
+        return (items, totalCount);
+    }
+
     public async Task<Unit?> GetByIdAsync(int id)
     {
         using var connection = _connectionFactory.CreateConnection();

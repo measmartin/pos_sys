@@ -19,6 +19,48 @@ public class CategoryRepository : ICategoryRepository
         return await connection.QueryAsync<Category>(sql);
     }
 
+    public async Task<(IEnumerable<Category> Items, int TotalCount)> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool? isActive)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var offset = (page - 1) * pageSize;
+
+        var parameters = new
+        {
+            Search = string.IsNullOrWhiteSpace(search) ? null : search.Trim(),
+            IsActive = isActive,
+            Offset = offset,
+            PageSize = pageSize
+        };
+
+        const string whereClause = @"
+            WHERE (@IsActive IS NULL OR is_active = @IsActive)
+              AND (
+                    @Search IS NULL
+                    OR category_name LIKE '%' + @Search + '%'
+                    OR description LIKE '%' + @Search + '%'
+                  )";
+
+        var itemsSql = $@"
+            SELECT *
+            FROM Category
+            {whereClause}
+            ORDER BY category_name
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;";
+
+        var countSql = $@"
+            SELECT COUNT(1)
+            FROM Category
+            {whereClause};";
+
+        var items = await connection.QueryAsync<Category>(itemsSql, parameters);
+        var totalCount = await connection.ExecuteScalarAsync<int>(countSql, parameters);
+        return (items, totalCount);
+    }
+
     public async Task<Category?> GetByIdAsync(int id)
     {
         using var connection = _connectionFactory.CreateConnection();
