@@ -1,4 +1,12 @@
-import { Modal } from './Modal';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -20,24 +28,18 @@ export function ConfirmDialog({
   isLoading,
 }: ConfirmDialogProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
-      <p className="text-gray-600 mb-6">{message}</p>
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={onClose}
-          disabled={isLoading}
-          className="px-4 py-2 text-sm border rounded hover:bg-gray-50 disabled:opacity-50"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={onConfirm}
-          disabled={isLoading}
-          className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
-        >
-          {isLoading ? 'Processing...' : confirmLabel}
-        </button>
-      </div>
-    </Modal>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent showCloseButton>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{message}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter showCloseButton>
+          <Button variant="destructive" disabled={isLoading} onClick={onConfirm}>
+            {isLoading ? 'Processing...' : confirmLabel}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

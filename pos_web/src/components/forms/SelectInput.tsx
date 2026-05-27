@@ -1,48 +1,53 @@
-import type { SelectHTMLAttributes } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface SelectOption {
   value: string | number;
   label: string;
 }
 
-interface SelectInputProps extends SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectInputProps {
   label: string;
+  value: string | number;
+  onChange: (value: string | null) => void;
   options: SelectOption[];
   error?: string;
   placeholder?: string;
+  required?: boolean;
 }
 
 export function SelectInput({
   label,
+  value,
+  onChange,
   options,
   error,
   placeholder = 'Select...',
-  id,
-  ...props
+  required,
 }: SelectInputProps) {
-  const selectId = id ?? label.toLowerCase().replace(/\s+/g, '-');
   return (
-    <div className="mb-4">
-      <label htmlFor={selectId} className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-foreground">
+        {label}{required && <span className="text-destructive ml-0.5">*</span>}
       </label>
-      <select
-        id={selectId}
-        className={`block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 ${
-          error
-            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-        }`}
-        {...props}
-      >
-        <option value="">{placeholder}</option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      <Select value={String(value)} onValueChange={onChange}>
+        <SelectTrigger className={error ? 'border-destructive' : ''}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((opt) => (
+            <SelectItem key={opt.value} value={String(opt.value)}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

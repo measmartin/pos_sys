@@ -1,20 +1,38 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useSale, useDeleteSale } from '../hooks';
+import { Button } from '@/components/ui/button';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { formatCurrency, formatDate } from '../utils/formatting';
 import { useState } from 'react';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 
 export function SaleDetail() {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { data: sale, isLoading } = useSale(Number(id));
   const deleteMutation = useDeleteSale();
   const [showDelete, setShowDelete] = useState(false);
 
+  const handleDelete = async () => {
+    if (!sale) return;
+    await deleteMutation.mutateAsync(sale.saleId);
+    navigate('/sales');
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full size-8 border-b-2 border-primary" />
       </div>
     );
   }
@@ -22,137 +40,142 @@ export function SaleDetail() {
   if (!sale) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Sale not found</p>
-        <Link to="/sales" className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
+        <p className="text-muted-foreground">Sale not found</p>
+        <Button variant="link" onClick={() => navigate('/sales')} className="mt-4">
           Back to Sales
-        </Link>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <Link to="/sales" className="text-sm text-blue-600 hover:text-blue-800 mb-1 inline-block">
-            &larr; Back to Sales
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Sale {sale.saleNumber}</h1>
+          <Button variant="link" size="sm" onClick={() => navigate('/sales')} className="px-0">
+            <ArrowLeft className="size-3.5" />
+            Back to Sales
+          </Button>
+          <h1 className="text-2xl font-bold tracking-tight">Sale {sale.saleNumber}</h1>
         </div>
-        <button
-          onClick={() => setShowDelete(true)}
-          className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700"
-        >
+        <Button variant="destructive" onClick={() => setShowDelete(true)}>
+          <Trash2 className="size-4" />
           Delete
-        </button>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Sale Details</h2>
-          <dl className="grid grid-cols-2 gap-4">
-            <div>
-              <dt className="text-sm text-gray-500">Date</dt>
-              <dd className="text-sm font-medium">{formatDate(sale.saleDate)}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Status</dt>
-              <dd><StatusBadge status={sale.saleStatus} /></dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Payment</dt>
-              <dd><StatusBadge status={sale.paymentStatus} /></dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Customer</dt>
-              <dd className="text-sm font-medium">{sale.customerName ?? 'Walk-in'}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Currency</dt>
-              <dd className="text-sm font-medium">{sale.currencyCode}</dd>
-            </div>
-          </dl>
-        </div>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Sale Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <dl className="grid grid-cols-2 gap-4">
+              <div>
+                <dt className="text-sm text-muted-foreground">Date</dt>
+                <dd className="text-sm font-medium">{formatDate(sale.saleDate)}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Status</dt>
+                <dd><StatusBadge status={sale.saleStatus} /></dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Payment</dt>
+                <dd><StatusBadge status={sale.paymentStatus} /></dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Customer</dt>
+                <dd className="text-sm font-medium">{sale.customerName ?? 'Walk-in'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Currency</dt>
+                <dd className="text-sm font-medium">{sale.currencyCode}</dd>
+              </div>
+            </dl>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Totals</h2>
-          <dl className="space-y-3">
-            <div className="flex justify-between">
-              <dt className="text-sm text-gray-500">Subtotal</dt>
-              <dd className="text-sm font-medium">{formatCurrency(sale.subtotal, sale.currencySymbol)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-sm text-gray-500">Discount</dt>
-              <dd className="text-sm font-medium text-red-600">
-                -{formatCurrency(sale.totalDiscount, sale.currencySymbol)}
-              </dd>
-            </div>
-            <div className="flex justify-between border-t pt-2">
-              <dt className="text-sm font-semibold">Total</dt>
-              <dd className="text-sm font-bold">
-                {formatCurrency(sale.totalAmount, sale.currencySymbol)}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-sm text-gray-500">Paid</dt>
-              <dd className="text-sm font-medium">
-                {formatCurrency(sale.amountPaid, sale.currencySymbol)}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-sm text-gray-500">Change</dt>
-              <dd className="text-sm font-medium text-green-600">
-                {formatCurrency(sale.changeAmount, sale.currencySymbol)}
-              </dd>
-            </div>
-          </dl>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Totals</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <dl className="space-y-3">
+              <div className="flex justify-between">
+                <dt className="text-sm text-muted-foreground">Subtotal</dt>
+                <dd className="text-sm font-medium">{formatCurrency(sale.subtotal, sale.currencySymbol)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-sm text-muted-foreground">Discount</dt>
+                <dd className="text-sm font-medium text-destructive">
+                  -{formatCurrency(sale.totalDiscount, sale.currencySymbol)}
+                </dd>
+              </div>
+              <div className="flex justify-between border-t pt-2">
+                <dt className="text-sm font-semibold">Total</dt>
+                <dd className="text-sm font-bold">
+                  {formatCurrency(sale.totalAmount, sale.currencySymbol)}
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-sm text-muted-foreground">Paid</dt>
+                <dd className="text-sm font-medium">
+                  {formatCurrency(sale.amountPaid, sale.currencySymbol)}
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-sm text-muted-foreground">Change</dt>
+                <dd className="text-sm font-medium text-green-600">
+                  {formatCurrency(sale.changeAmount, sale.currencySymbol)}
+                </dd>
+              </div>
+            </dl>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">Items</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Qty</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Price</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Subtotal</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Discount</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+      <Card>
+        <CardHeader>
+          <CardTitle>Items</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>#</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Unit</TableHead>
+                <TableHead className="text-right">Qty</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead className="text-right">Subtotal</TableHead>
+                <TableHead className="text-right">Discount</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {sale.items.map((item) => (
-                <tr key={item.salesItemId}>
-                  <td className="px-6 py-4 text-sm text-gray-500">{item.lineNumber}</td>
-                  <td className="px-6 py-4 text-sm font-medium">{item.productName}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{item.unitName}</td>
-                  <td className="px-6 py-4 text-sm text-right">{item.quantity}</td>
-                  <td className="px-6 py-4 text-sm text-right">{formatCurrency(item.unitPrice)}</td>
-                  <td className="px-6 py-4 text-sm text-right">{formatCurrency(item.lineSubtotal)}</td>
-                  <td className="px-6 py-4 text-sm text-right text-red-600">
+                <TableRow key={item.salesItemId}>
+                  <TableCell className="text-muted-foreground">{item.lineNumber}</TableCell>
+                  <TableCell className="font-medium">{item.productName}</TableCell>
+                  <TableCell className="text-muted-foreground">{item.unitName}</TableCell>
+                  <TableCell className="text-right">{item.quantity}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(item.unitPrice)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(item.lineSubtotal)}</TableCell>
+                  <TableCell className="text-right text-destructive">
                     {item.discountAmount > 0 ? `-${formatCurrency(item.discountAmount)}` : '-'}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-right font-medium">{formatCurrency(item.lineTotal)}</td>
-                </tr>
+                  </TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(item.lineTotal)}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       <ConfirmDialog
         isOpen={showDelete}
         onClose={() => setShowDelete(false)}
-        onConfirm={async () => {
-          await deleteMutation.mutateAsync(sale.saleId);
-        }}
+        onConfirm={handleDelete}
         title="Delete Sale"
         message="Are you sure you want to delete this sale?"
         isLoading={deleteMutation.isPending}

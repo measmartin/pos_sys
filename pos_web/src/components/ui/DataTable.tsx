@@ -1,4 +1,13 @@
 import type { ReactNode } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export interface Column<T> {
   key: string;
@@ -24,48 +33,46 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="space-y-3 p-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex gap-4">
+            {columns.map((col) => (
+              <Skeleton key={col.key} className="h-6 flex-1" />
+            ))}
+          </div>
+        ))}
       </div>
     );
   }
 
   if (data.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">{emptyMessage}</div>
+      <div className="text-center py-8 text-muted-foreground">{emptyMessage}</div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${col.className ?? ''}`}
-              >
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {data.map((item) => (
-            <tr key={keyExtractor(item)} className="hover:bg-gray-50">
-              {columns.map((col) => (
-                <td
-                  key={col.key}
-                  className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${col.className ?? ''}`}
-                >
-                  {col.render ? col.render(item) : (item as Record<string, unknown>)[col.key] as ReactNode}
-                </td>
-              ))}
-            </tr>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          {columns.map((col) => (
+            <TableHead key={col.key} className={col.className}>
+              {col.header}
+            </TableHead>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data.map((item) => (
+          <TableRow key={keyExtractor(item)}>
+            {columns.map((col) => (
+              <TableCell key={col.key} className={col.className}>
+                {col.render ? col.render(item) : (item as Record<string, unknown>)[col.key] as ReactNode}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }

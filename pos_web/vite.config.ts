@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@PosApi': path.resolve(__dirname, '@PosApi'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
   server: {

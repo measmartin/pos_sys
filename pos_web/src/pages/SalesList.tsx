@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSalesList, useDeleteSale } from '../hooks';
+import { Button } from '@/components/ui/button';
 import { DataTable, type Column } from '../components/ui/DataTable';
 import { Pagination } from '../components/ui/Pagination';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { formatCurrency, formatDate } from '../utils/formatting';
 import type { SalesDetailsDto } from '@PosApi/types';
+import { Plus, Eye, Trash2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
 const columns: Column<SalesDetailsDto>[] = [
   { key: 'saleNumber', header: 'Sale #' },
@@ -38,6 +41,7 @@ const columns: Column<SalesDetailsDto>[] = [
 ];
 
 export function SalesList() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { data, isLoading } = useSalesList({ page, pageSize: 20 });
@@ -54,35 +58,34 @@ export function SalesList() {
     header: 'Actions',
     render: (s) => (
       <div className="flex gap-2">
-        <Link
-          to={`/sales/${s.saleId}`}
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-        >
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/sales/${s.saleId}`)}>
+          <Eye className="size-3.5" />
           View
-        </Link>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setDeleteId(s.saleId)}
-          className="text-red-600 hover:text-red-800 text-sm font-medium"
+          className="text-destructive hover:text-destructive"
         >
+          <Trash2 className="size-3.5" />
           Delete
-        </button>
+        </Button>
       </div>
     ),
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Sales</h1>
-        <Link
-          to="/sales/new"
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
-        >
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">Sales</h1>
+        <Button onClick={() => navigate('/sales/new')}>
+          <Plus className="size-4" />
           New Sale
-        </Link>
+        </Button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <Card className="overflow-hidden">
         <DataTable
           columns={[...columns, actionColumn]}
           data={data?.data ?? []}
@@ -98,7 +101,7 @@ export function SalesList() {
             onPageChange={setPage}
           />
         )}
-      </div>
+      </Card>
 
       <ConfirmDialog
         isOpen={deleteId != null}

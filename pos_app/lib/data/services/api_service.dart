@@ -194,11 +194,32 @@ class ApiService {
 
   // --- Product Units ---
   Future<List<dynamic>> getProductUnits(int productId) async {
-    final res = await _client.get(
-      _uri('/api/products/$productId/units'),
-      headers: _headers,
-    );
-    return await _handleResponse(res) as List<dynamic>;
+    final query = <String, String>{
+      'productId': '$productId',
+    };
+    const path = '/api/productunits';
+    _log('GET $path?productId=$productId');
+    try {
+      final res = await _client
+          .get(_uri(path, query), headers: _headers)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () =>
+                throw TimeoutException('GET $path timed out after 10s'),
+          );
+      final data = await _handleResponse(res, method: 'GET', path: path);
+      return _extractListResponse(data);
+    } on TimeoutException catch (e) {
+      final errorMsg = e.toString();
+      _log('GET $path -> TIMEOUT: $errorMsg');
+      onApiError?.call(errorMsg);
+      rethrow;
+    } catch (e) {
+      final errorMsg = 'GET $path -> EXCEPTION: $e';
+      _log(errorMsg);
+      onApiError?.call(errorMsg);
+      rethrow;
+    }
   }
 
   Future<String?> getProductImageUrl(int productUnitId) async {
@@ -421,9 +442,41 @@ class ApiService {
   }
 
   // --- Categories ---
-  Future<List<dynamic>> getCategories() async {
-    final res = await _client.get(_uri('/api/categories'), headers: _headers);
-    return await _handleResponse(res) as List<dynamic>;
+  Future<List<dynamic>> getCategories({
+    int page = 1,
+    int pageSize = 50,
+    String? search,
+    bool? isActive,
+  }) async {
+    final query = <String, String>{
+      'page': '$page',
+      'pageSize': '$pageSize',
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (isActive != null) 'isActive': '$isActive',
+    };
+    const path = '/api/categories';
+    _log('GET $path (page: $page)');
+    try {
+      final res = await _client
+          .get(_uri(path, query), headers: _headers)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () =>
+                throw TimeoutException('GET $path timed out after 10s'),
+          );
+      final data = await _handleResponse(res, method: 'GET', path: path);
+      return _extractListResponse(data);
+    } on TimeoutException catch (e) {
+      final errorMsg = e.toString();
+      _log('GET $path -> TIMEOUT: $errorMsg');
+      onApiError?.call(errorMsg);
+      rethrow;
+    } catch (e) {
+      final errorMsg = 'GET $path -> EXCEPTION: $e';
+      _log(errorMsg);
+      onApiError?.call(errorMsg);
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> getCategory(int id) async {
@@ -461,9 +514,41 @@ class ApiService {
   }
 
   // --- Units ---
-  Future<List<dynamic>> getUnits() async {
-    final res = await _client.get(_uri('/api/units'), headers: _headers);
-    return await _handleResponse(res) as List<dynamic>;
+  Future<List<dynamic>> getUnits({
+    int page = 1,
+    int pageSize = 50,
+    String? search,
+    bool? isActive,
+  }) async {
+    final query = <String, String>{
+      'page': '$page',
+      'pageSize': '$pageSize',
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (isActive != null) 'isActive': '$isActive',
+    };
+    const path = '/api/units';
+    _log('GET $path (page: $page)');
+    try {
+      final res = await _client
+          .get(_uri(path, query), headers: _headers)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () =>
+                throw TimeoutException('GET $path timed out after 10s'),
+          );
+      final data = await _handleResponse(res, method: 'GET', path: path);
+      return _extractListResponse(data);
+    } on TimeoutException catch (e) {
+      final errorMsg = e.toString();
+      _log('GET $path -> TIMEOUT: $errorMsg');
+      onApiError?.call(errorMsg);
+      rethrow;
+    } catch (e) {
+      final errorMsg = 'GET $path -> EXCEPTION: $e';
+      _log(errorMsg);
+      onApiError?.call(errorMsg);
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> getUnit(int id) async {
@@ -495,9 +580,41 @@ class ApiService {
   }
 
   // --- Currencies ---
-  Future<List<dynamic>> getCurrencies() async {
-    final res = await _client.get(_uri('/api/currencies'), headers: _headers);
-    return await _handleResponse(res) as List<dynamic>;
+  Future<List<dynamic>> getCurrencies({
+    int page = 1,
+    int pageSize = 50,
+    String? search,
+    bool? isActive,
+  }) async {
+    final query = <String, String>{
+      'page': '$page',
+      'pageSize': '$pageSize',
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (isActive != null) 'isActive': '$isActive',
+    };
+    const path = '/api/currencies';
+    _log('GET $path (page: $page)');
+    try {
+      final res = await _client
+          .get(_uri(path, query), headers: _headers)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () =>
+                throw TimeoutException('GET $path timed out after 10s'),
+          );
+      final data = await _handleResponse(res, method: 'GET', path: path);
+      return _extractListResponse(data);
+    } on TimeoutException catch (e) {
+      final errorMsg = e.toString();
+      _log('GET $path -> TIMEOUT: $errorMsg');
+      onApiError?.call(errorMsg);
+      rethrow;
+    } catch (e) {
+      final errorMsg = 'GET $path -> EXCEPTION: $e';
+      _log(errorMsg);
+      onApiError?.call(errorMsg);
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> getCurrency(int id) async {
