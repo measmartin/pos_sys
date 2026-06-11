@@ -41,6 +41,7 @@ public interface IProductService
         bool? isActive);
     Task<ProductDetailsDto?> GetByIdAsync(int id);
     Task<IEnumerable<ProductDetailsDto>> GetByCategoryIdAsync(int categoryId);
+    Task<int> GetCountAsync();
     Task<int> CreateAsync(CreateProductDto dto);
     Task<bool> UpdateAsync(int id, UpdateProductDto dto);
     Task<bool> DeleteAsync(int id);
@@ -75,6 +76,7 @@ public interface ICustomerService
         bool? isActive);
     Task<CustomerDetailsDto?> GetByIdAsync(int id);
     Task<CustomerDetailsDto?> GetByPhoneAsync(string phone);
+    Task<int> GetCountAsync();
     Task<int> CreateAsync(CreateCustomerDto dto);
     Task<bool> UpdateAsync(int id, UpdateCustomerDto dto);
     Task<bool> DeleteAsync(int id);
@@ -108,12 +110,26 @@ public interface ISalesService
     Task<SalesDetailsDto?> GetBySaleNumberAsync(string saleNumber);
     Task<IEnumerable<SalesDetailsDto>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
     Task<IEnumerable<SalesDetailsDto>> GetByCustomerIdAsync(int customerId);
+    Task<(decimal TotalAmount, int Count)> GetSalesSummaryAsync(DateTime startDate, DateTime endDate);
     Task<int> CreateAsync(CreateSalesDto dto);
     Task<bool> UpdateAsync(int id, UpdateSalesDto dto);
     Task<bool> DeleteAsync(int id);
-    
+
     // Aggregation root methods
     Task<int> AddItemAsync(int saleId, CreateSalesItemDto dto);
     Task<bool> UpdateItemAsync(int saleId, int itemId, UpdateSalesItemDto dto);
     Task<bool> RemoveItemAsync(int saleId, int itemId);
+
+    // Payment & void
+    Task<bool> ProcessPaymentAsync(int saleId, ProcessPaymentDto dto);
+    Task<bool> VoidSaleAsync(int saleId);
+}
+
+public interface IAuthService
+{
+    Task<AuthResponseDto> LoginAsync(LoginDto dto);
+    Task<AuthResponseDto> RegisterAsync(RegisterDto dto);
+    Task<AuthResponseDto?> RefreshTokenAsync(string refreshToken);
+    Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto dto);
+    Task<UserDto?> GetCurrentUserAsync(int userId);
 }

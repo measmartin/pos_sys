@@ -35,7 +35,11 @@ export function SelectInput({
       <label className="text-sm font-medium text-foreground">
         {label}{required && <span className="text-destructive ml-0.5">*</span>}
       </label>
-      <Select value={String(value)} onValueChange={onChange}>
+      <Select
+        value={String(value)}
+        onValueChange={onChange}
+        items={options.map((opt) => ({ value: String(opt.value), label: opt.label }))}
+      >
         <SelectTrigger className={error ? 'border-destructive' : ''}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

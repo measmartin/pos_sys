@@ -99,7 +99,7 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.background,
       textTheme: _buildTextTheme(base.textTheme),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.background.withOpacity(0.85),
+        backgroundColor: AppColors.background.withValues(alpha:0.85),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -111,8 +111,8 @@ class AppTheme {
         iconTheme: const IconThemeData(color: AppColors.onSurface),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surfaceContainerLowest.withOpacity(0.92),
-        indicatorColor: AppColors.primary.withOpacity(0.08),
+        backgroundColor: AppColors.surfaceContainerLowest.withValues(alpha:0.92),
+        indicatorColor: AppColors.primary.withValues(alpha:0.08),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return GoogleFonts.publicSans(
@@ -136,7 +136,7 @@ class AppTheme {
         color: AppColors.surfaceContainerLowest,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        shadowColor: Colors.black.withOpacity(0.05),
+        shadowColor: Colors.black.withValues(alpha:0.05),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -148,7 +148,7 @@ class AppTheme {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: AppColors.outlineVariant.withOpacity(0.5),
+            color: AppColors.outlineVariant.withValues(alpha:0.5),
             width: 1,
           ),
         ),

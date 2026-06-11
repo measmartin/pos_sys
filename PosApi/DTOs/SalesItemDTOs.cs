@@ -1,14 +1,29 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PosApi.DTOs;
 
 // SalesItem DTOs
 public class CreateSalesItemDto
 {
+    [Range(1, int.MaxValue, ErrorMessage = "Product ID must be a positive integer.")]
     public int ProductId { get; set; }
+
+    [Range(1, int.MaxValue, ErrorMessage = "Product unit ID must be a positive integer.")]
     public int ProductUnitId { get; set; }
+
+    [Range(0.0001, double.MaxValue, ErrorMessage = "Quantity must be greater than 0.")]
     public decimal Quantity { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "Unit price must be non-negative.")]
     public decimal UnitPrice { get; set; }
+
+    [Range(0, 100, ErrorMessage = "Discount percentage must be between 0 and 100.")]
     public decimal? DiscountPercentage { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "Discount amount must be non-negative.")]
     public decimal? DiscountAmount { get; set; }
+
+    [StringLength(500, ErrorMessage = "Notes must be at most 500 characters.")]
     public string? Notes { get; set; }
 }
 
@@ -31,10 +46,18 @@ public class SalesItemDto
 
 public class UpdateSalesItemDto
 {
+    [Range(0.0001, double.MaxValue, ErrorMessage = "Quantity must be greater than 0.")]
     public decimal Quantity { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "Unit price must be non-negative.")]
     public decimal UnitPrice { get; set; }
+
+    [Range(0, 100, ErrorMessage = "Discount percentage must be between 0 and 100.")]
     public decimal? DiscountPercentage { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "Discount amount must be non-negative.")]
     public decimal? DiscountAmount { get; set; }
+
     public bool IsActive { get; set; }
 }
 

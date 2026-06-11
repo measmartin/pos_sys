@@ -1,13 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>9a363ef1-e90c-481b-ac2d-04dc9217cec0</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.0" />
     <PackageReference Include="Dapper" Version="2.1.72" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.13.20" />

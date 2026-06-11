@@ -140,7 +140,7 @@ class _CurrencyFormSheetState extends State<CurrencyFormSheet> {
                   ),
                 ),
                 contentPadding: EdgeInsets.zero,
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
               ),
               if (isEdit) ...[
                 SwitchListTile(
@@ -154,7 +154,7 @@ class _CurrencyFormSheetState extends State<CurrencyFormSheet> {
                     ),
                   ),
                   contentPadding: EdgeInsets.zero,
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
               ],
               const SizedBox(height: 24),
@@ -213,7 +213,7 @@ class _CurrencyFormSheetState extends State<CurrencyFormSheet> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: AppColors.outlineVariant.withOpacity(0.5),
+            color: AppColors.outlineVariant.withValues(alpha:0.5),
           ),
         ),
         focusedBorder: OutlineInputBorder(

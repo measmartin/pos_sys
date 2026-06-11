@@ -99,8 +99,8 @@ class UnitCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: unit.isActive
-                        ? AppColors.primary.withOpacity(0.08)
-                        : AppColors.error.withOpacity(0.08),
+                        ? AppColors.primary.withValues(alpha:0.08)
+                        : AppColors.error.withValues(alpha:0.08),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(

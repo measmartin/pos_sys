@@ -1,9 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/currency_model.dart';
 import '../../../data/models/product_model.dart';
+import '../../../utils/currency_utils.dart';
 
 class CatalogCard extends StatelessWidget {
   final ProductDetailsDto product;
@@ -29,8 +30,9 @@ class CatalogCard extends StatelessWidget {
     final rate = selectedCurrency == null || selectedCurrency!.isBaseCurrency
         ? 1.0
         : selectedCurrency!.exchangeRate;
-    final formatter = NumberFormat.currency(
-      symbol: selectedCurrency?.currencySymbol ??
+    final formatter = makeCurrencyFormat(
+      selectedCurrency?.currencyCode,
+      selectedCurrency?.currencySymbol ??
           selectedCurrency?.currencyCode ??
           unit?.currencySymbol ??
           unit?.currencyCode ??
@@ -43,8 +45,8 @@ class CatalogCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: isInTransaction
-              ? AppColors.primary.withOpacity(0.65)
-              : AppColors.outlineVariant.withOpacity(0.2),
+              ? AppColors.primary.withValues(alpha:0.65)
+              : AppColors.outlineVariant.withValues(alpha:0.2),
           width: isInTransaction ? 1.2 : 0.7,
         ),
       ),
@@ -67,12 +69,19 @@ class CatalogCard extends StatelessWidget {
                           color: AppColors.surfaceContainer,
                         ),
                         child: unit?.imageUrl != null
-                            ? Image.network(
-                                unit!.imageUrl!,
+                            ? CachedNetworkImage(
+                                imageUrl: unit!.imageUrl!,
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => const Center(
+                                placeholder: (context, url) => const Center(
+                                  child: Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: 32,
+                                    color: AppColors.outlineVariant,
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => const Center(
                                   child: Icon(
                                     Icons.inventory_2_outlined,
                                     size: 32,
@@ -147,7 +156,9 @@ class CatalogCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                unit != null ? formatter.format(unit.price * rate) : 'N/A',
+                unit != null
+                    ? formatter.format(roundForCurrency(unit.price * rate, selectedCurrency?.currencyCode))
+                    : 'N/A',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,

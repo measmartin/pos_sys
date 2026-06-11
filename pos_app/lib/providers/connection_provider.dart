@@ -20,9 +20,9 @@ class ConnectionProvider extends ChangeNotifier {
   int get requestCount => _requestCount;
   int get errorCount => _errorCount;
 
-  void initialize({required String baseUrl, required String apiKey}) {
+  void initialize({required String baseUrl, String? apiKey}) {
     _baseUrl = baseUrl;
-    _apiKey = apiKey;
+    _apiKey = apiKey ?? '';
     notifyListeners();
   }
 

@@ -7,6 +7,7 @@ import '../../../core/printing/printer_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/currency_model.dart';
 import '../../../providers/sales_provider.dart';
+import '../../../utils/currency_utils.dart';
 import 'cart_item_tile.dart';
 import 'total_row.dart';
 
@@ -31,7 +32,35 @@ class _TransactionPanelState extends State<TransactionPanel> {
   bool _isCheckoutSectionExpanded = true;
 
   @override
+  void initState() {
+    super.initState();
+    widget.sales.addListener(_onSalesChanged);
+    _phoneCtrl.text = widget.sales.customerPhone;
+    _syncAmountPaidDefault(widget.sales);
+  }
+
+  @override
+  void didUpdateWidget(covariant TransactionPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.sales != widget.sales) {
+      oldWidget.sales.removeListener(_onSalesChanged);
+      widget.sales.addListener(_onSalesChanged);
+    }
+  }
+
+  void _onSalesChanged() {
+    if (!mounted) return;
+    final s = widget.sales;
+    if (_phoneCtrl.text != s.customerPhone) {
+      _phoneCtrl.text = s.customerPhone;
+      _phoneCtrl.selection = TextSelection.collapsed(offset: _phoneCtrl.text.length);
+    }
+    _syncAmountPaidDefault(s);
+  }
+
+  @override
   void dispose() {
+    widget.sales.removeListener(_onSalesChanged);
     _discountAmtCtrl.dispose();
     _discountPctCtrl.dispose();
     _amtPaidCtrl.dispose();
@@ -43,17 +72,12 @@ class _TransactionPanelState extends State<TransactionPanel> {
   Widget build(BuildContext context) {
     final s = widget.sales;
     final selectedCurrency = widget.selectedCurrency;
-    final c = NumberFormat.currency(
-      symbol: selectedCurrency?.currencySymbol ??
-          selectedCurrency?.currencyCode ??
-          r'$',
+    final c = makeCurrencyFormat(
+      selectedCurrency?.currencyCode,
+      selectedCurrency?.currencySymbol ?? selectedCurrency?.currencyCode ?? r'$',
     );
     final rate = s.selectedCurrencyRate;
-    if (_phoneCtrl.text != s.customerPhone) {
-      _phoneCtrl.text = s.customerPhone;
-      _phoneCtrl.selection = TextSelection.collapsed(offset: _phoneCtrl.text.length);
-    }
-    _syncAmountPaidDefault(s);
+    final currencyCode = selectedCurrency?.currencyCode;
 
     return Column(
       children: [
@@ -89,7 +113,7 @@ class _TransactionPanelState extends State<TransactionPanel> {
                   color: AppColors.error,
                   onPressed: s.clearCart,
                   style: IconButton.styleFrom(
-                    backgroundColor: AppColors.errorContainer.withOpacity(0.2),
+                    backgroundColor: AppColors.errorContainer.withValues(alpha:0.2),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -305,6 +329,7 @@ class _TransactionPanelState extends State<TransactionPanel> {
                     item: s.cart[i],
                     currency: c,
                     currencyRate: rate,
+                    currencyCode: currencyCode,
                     onRemove: () => s.removeFromCart(i),
                     onQtyChange: (q) => s.updateQuantity(i, q),
                     onUnitChange: (unitId) => s.updateCartItemUnit(i, unitId),
@@ -317,7 +342,7 @@ class _TransactionPanelState extends State<TransactionPanel> {
           decoration: BoxDecoration(
             color: AppColors.surfaceContainerLow,
             border: Border(
-              top: BorderSide(color: AppColors.outlineVariant.withOpacity(0.4)),
+              top: BorderSide(color: AppColors.outlineVariant.withValues(alpha:0.4)),
             ),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
@@ -395,20 +420,20 @@ class _TransactionPanelState extends State<TransactionPanel> {
                                       ],
                                       decoration: InputDecoration(
                                         hintText: 'Amount',
-                                        prefixText: '\$ ',
+                                        prefixText: '${selectedCurrency?.currencySymbol ?? '\$'} ',
                                         filled: true,
                                         fillColor: AppColors.surface,
                                         isDense: true,
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(8),
                                           borderSide: BorderSide(
-                                            color: AppColors.outlineVariant.withOpacity(0.5),
+                                            color: AppColors.outlineVariant.withValues(alpha:0.5),
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(8),
                                           borderSide: BorderSide(
-                                            color: AppColors.outlineVariant.withOpacity(0.4),
+                                            color: AppColors.outlineVariant.withValues(alpha:0.4),
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
@@ -422,10 +447,23 @@ class _TransactionPanelState extends State<TransactionPanel> {
                                           vertical: 8,
                                         ),
                                       ),
-                                      onChanged: (v) => s.setDiscount(
-                                        amount: double.tryParse(v) ?? 0,
-                                        percentage: 0,
-                                      ),
+                                      onChanged: (v) {
+                                        final val = double.tryParse(v) ?? 0;
+                                        if (val < 0) return;
+                                        if (val > s.cartSubtotal) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Discount cannot exceed subtotal'),
+                                              backgroundColor: AppColors.error,
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        s.setDiscount(
+                                          amount: val,
+                                          percentage: 0,
+                                        );
+                                      },
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -445,13 +483,13 @@ class _TransactionPanelState extends State<TransactionPanel> {
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(8),
                                           borderSide: BorderSide(
-                                            color: AppColors.outlineVariant.withOpacity(0.5),
+                                            color: AppColors.outlineVariant.withValues(alpha:0.5),
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(8),
                                           borderSide: BorderSide(
-                                            color: AppColors.outlineVariant.withOpacity(0.4),
+                                            color: AppColors.outlineVariant.withValues(alpha:0.4),
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
@@ -465,10 +503,22 @@ class _TransactionPanelState extends State<TransactionPanel> {
                                           vertical: 8,
                                         ),
                                       ),
-                                      onChanged: (v) => s.setDiscount(
-                                        amount: 0,
-                                        percentage: double.tryParse(v) ?? 0,
-                                      ),
+                                      onChanged: (v) {
+                                        final val = double.tryParse(v) ?? 0;
+                                        if (val < 0 || val > 100) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Discount percentage must be between 0 and 100'),
+                                              backgroundColor: AppColors.error,
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        s.setDiscount(
+                                          amount: 0,
+                                          percentage: val,
+                                        );
+                                      },
                                     ),
                                   ),
                                 ],
@@ -515,13 +565,13 @@ class _TransactionPanelState extends State<TransactionPanel> {
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
-                                      color: AppColors.outlineVariant.withOpacity(0.5),
+                                      color: AppColors.outlineVariant.withValues(alpha:0.5),
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
-                                      color: AppColors.outlineVariant.withOpacity(0.4),
+                                      color: AppColors.outlineVariant.withValues(alpha:0.4),
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
@@ -553,20 +603,20 @@ class _TransactionPanelState extends State<TransactionPanel> {
                                 ],
                                 decoration: InputDecoration(
                                   labelText: 'Amount Paid',
-                                  prefixText: '\$ ',
+                                  prefixText: '${selectedCurrency?.currencySymbol ?? '\$'} ',
                                   filled: true,
                                   fillColor: AppColors.surface,
                                   isDense: true,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
-                                      color: AppColors.outlineVariant.withOpacity(0.5),
+                                      color: AppColors.outlineVariant.withValues(alpha:0.5),
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
-                                      color: AppColors.outlineVariant.withOpacity(0.4),
+                                      color: AppColors.outlineVariant.withValues(alpha:0.4),
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
@@ -579,8 +629,18 @@ class _TransactionPanelState extends State<TransactionPanel> {
                                   ),
                                 ),
                                 onChanged: (v) {
+                                  final val = double.tryParse(v) ?? 0;
+                                  if (val < 0) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Amount paid cannot be negative'),
+                                        backgroundColor: AppColors.error,
+                                      ),
+                                    );
+                                    return;
+                                  }
                                   _amountPaidManuallyEdited = true;
-                                  s.setAmountPaid(double.tryParse(v) ?? 0);
+                                  s.setAmountPaid(val);
                                 },
                               ),
                               if (s.changeAmount > 0)
@@ -666,7 +726,7 @@ class _TransactionPanelState extends State<TransactionPanel> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    shadowColor: AppColors.primary.withOpacity(0.3),
+                    shadowColor: AppColors.primary.withValues(alpha:0.3),
                     elevation: 4,
                   ),
                 ),
@@ -688,10 +748,21 @@ class _TransactionPanelState extends State<TransactionPanel> {
       );
       return;
     }
-    if (sales.customerPhone.trim().isEmpty) {
+    final phone = sales.customerPhone.trim();
+    if (phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Phone number is required to complete this sale.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    final digitsOnly = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digitsOnly.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Phone number must contain at least 6 digits.'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -706,9 +777,6 @@ class _TransactionPanelState extends State<TransactionPanel> {
       _phoneCtrl.clear();
       _amountPaidManuallyEdited = false;
       final selCur = widget.selectedCurrency;
-      final fmt = NumberFormat.currency(
-        symbol: selCur?.currencySymbol ?? selCur?.currencyCode ?? r'$',
-      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 3),
@@ -720,7 +788,7 @@ class _TransactionPanelState extends State<TransactionPanel> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Sale Complete — ${result.saleNumber} • ${fmt.format(result.totalAmount)}',
+                  'Sale Complete — ${result.saleNumber} • ${formatAmount(result.totalAmount, selCur?.currencyCode, selCur?.currencySymbol ?? selCur?.currencyCode ?? r'$')}',
                   style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                 ),
               ),

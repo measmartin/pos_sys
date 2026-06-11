@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart';
@@ -15,6 +16,7 @@ class PrinterProvider extends ChangeNotifier {
   bool _autoPrint = true;
   List<Printer> _discoveredPrinters = [];
   bool _scanning = false;
+  StreamSubscription<List<Printer>>? _scanSubscription;
 
   PrinterStatus get status => _status;
   String? get error => _error;
@@ -45,19 +47,22 @@ class PrinterProvider extends ChangeNotifier {
 
     try {
       await _ftp.stopScan();
+      await _scanSubscription?.cancel();
       _discoveredPrinters.clear();
 
-      _ftp.devicesStream.listen((printers) {
+      _scanSubscription = _ftp.devicesStream.listen((printers) {
         _discoveredPrinters = List.of(printers);
         notifyListeners();
       });
 
       await _ftp.getPrinters(
-        connectionTypes: [ConnectionType.USB, ConnectionType.BLE],
+        connectionTypes: [ConnectionType.USB, ConnectionType.BLE, ConnectionType.NETWORK],
       );
 
       await Future.delayed(const Duration(seconds: 5));
       await _ftp.stopScan();
+      await _scanSubscription?.cancel();
+      _scanSubscription = null;
     } catch (e) {
       _error = 'Scan failed: $e';
     }
@@ -91,12 +96,84 @@ class PrinterProvider extends ChangeNotifier {
       name: _printerConfig!.displayName,
       connectionType: _printerConfig!.type == PrinterType.usb
           ? ConnectionType.USB
-          : ConnectionType.USB,
+          : ConnectionType.NETWORK,
       isConnected: false,
     );
   }
 
+  Future<bool> _printNetwork(SalesDetailsDto sale) async {
+    if (_printerConfig == null) {
+      _error = 'No printer configured';
+      _status = PrinterStatus.error;
+      notifyListeners();
+      return false;
+    }
+    _status = PrinterStatus.connecting;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final service = FlutterThermalPrinterNetwork(
+        _printerConfig!.address,
+        port: _printerConfig!.port,
+      );
+      await service.connect();
+
+      _status = PrinterStatus.printing;
+      notifyListeners();
+
+      final bytes = await ReceiptBuilder.build(sale, _storeConfig);
+      await service.printTicket(bytes);
+      await service.disconnect();
+
+      _status = PrinterStatus.connected;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _status = PrinterStatus.error;
+      _error = 'Print failed: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> _printTestNetwork() async {
+    if (_printerConfig == null) return false;
+    _status = PrinterStatus.connecting;
+    notifyListeners();
+
+    try {
+      final service = FlutterThermalPrinterNetwork(
+        _printerConfig!.address,
+        port: _printerConfig!.port,
+      );
+      await service.connect();
+
+      _status = PrinterStatus.printing;
+      notifyListeners();
+
+      final bytes = await ReceiptBuilder.buildTest(_storeConfig);
+      await service.printTicket(bytes);
+      await service.disconnect();
+
+      _status = PrinterStatus.connected;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _status = PrinterStatus.error;
+      _error = 'Test print failed: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> printReceipt(SalesDetailsDto sale) async {
+    if (_printerConfig?.type == PrinterType.network) {
+      return _printNetwork(sale);
+    }
+
     final printerObj = _buildPrinter();
     if (printerObj == null) {
       _error = 'No printer configured';
@@ -111,7 +188,7 @@ class PrinterProvider extends ChangeNotifier {
 
     try {
       final connected = await _ftp.connect(printerObj);
-      if (!connected) {
+      if (connected != true) {
         _status = PrinterStatus.error;
         _error = 'Failed to connect to printer';
         notifyListeners();
@@ -137,6 +214,10 @@ class PrinterProvider extends ChangeNotifier {
   }
 
   Future<bool> printTest() async {
+    if (_printerConfig?.type == PrinterType.network) {
+      return _printTestNetwork();
+    }
+
     final printerObj = _buildPrinter();
     if (printerObj == null) return false;
 
@@ -145,7 +226,7 @@ class PrinterProvider extends ChangeNotifier {
 
     try {
       final connected = await _ftp.connect(printerObj);
-      if (!connected) {
+      if (connected != true) {
         _status = PrinterStatus.error;
         _error = 'Failed to connect';
         notifyListeners();
@@ -183,5 +264,11 @@ class PrinterProvider extends ChangeNotifier {
     _error = null;
     _status = PrinterStatus.disconnected;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _scanSubscription?.cancel();
+    super.dispose();
   }
 }

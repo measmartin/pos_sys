@@ -14,4 +14,18 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom')) return 'vendor-react';
+          if (id.includes('node_modules/react') && !id.includes('react-dom')) return 'vendor-react';
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-') || id.includes('node_modules/victory-')) return 'vendor-recharts';
+          if (id.includes('node_modules/@tanstack/react-query')) return 'vendor-query';
+          if (id.includes('node_modules/jspdf') || id.includes('node_modules/html2canvas')) return 'vendor-pdf';
+          if (id.includes('node_modules/xlsx')) return 'vendor-xlsx';
+        },
+      },
+    },
+  },
 })

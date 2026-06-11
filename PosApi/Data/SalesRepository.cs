@@ -1,5 +1,6 @@
 using Dapper;
 using PosApi.Models;
+using System.Data;
 
 namespace PosApi.Data;
 
@@ -121,9 +122,12 @@ public class SalesRepository : ISalesRepository
         return await connection.QueryAsync<Sales>(sql, new { CustomerId = customerId });
     }
 
-    public async Task<string> GetNextSaleNumberAsync()
+    public async Task<string> GetNextSaleNumberAsync(IDbConnection? connection = null, IDbTransaction? transaction = null)
     {
-        using var connection = _connectionFactory.CreateConnection();
+        var conn = connection ?? _connectionFactory.CreateConnection();
+        var shouldDispose = connection == null;
+        if (shouldDispose) conn.Open();
+        
         int currentYear = DateTime.Now.Year;
         
         var parameters = new Dapper.DynamicParameters();
@@ -131,24 +135,29 @@ public class SalesRepository : ISalesRepository
         parameters.Add("@SaleNumber", dbType: System.Data.DbType.String, direction: System.Data.ParameterDirection.Output, size: 20);
         parameters.Add("@Sequence", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
         
-        await connection.ExecuteAsync(
+        await conn.ExecuteAsync(
             "sp_GetNextSaleNumber",
             parameters,
+            transaction: transaction,
             commandType: System.Data.CommandType.StoredProcedure
         );
+        
+        if (shouldDispose) conn.Dispose();
         
         var saleNumber = parameters.Get<string>("@SaleNumber");
         return saleNumber ?? $"{currentYear}-0001";
     }
 
-    public async Task<int> CreateAsync(Sales sales)
+    public async Task<int> CreateAsync(Sales sales, IDbConnection? connection = null, IDbTransaction? transaction = null)
     {
-        using var connection = _connectionFactory.CreateConnection();
+        var conn = connection ?? _connectionFactory.CreateConnection();
+        var shouldDispose = connection == null;
+        if (shouldDispose) conn.Open();
         
-        // Generate sale number if not provided
+        // Generate sale number if not provided (inside the transaction for atomicity)
         if (string.IsNullOrEmpty(sales.SaleNumber))
         {
-            sales.SaleNumber = await GetNextSaleNumberAsync();
+            sales.SaleNumber = await GetNextSaleNumberAsync(conn, transaction);
         }
         
         // Extract year and sequence from sale number (format: YYYY-NNNN)
@@ -164,12 +173,18 @@ public class SalesRepository : ISalesRepository
                     @Subtotal, @TotalDiscount, @TotalAmount, @AmountPaid, @ChangeAmount,
                     @PaymentStatus, @PaymentMethod, @PaymentDate, @Notes, @CreatedBy, @CreatedAt);
             SELECT CAST(SCOPE_IDENTITY() as int);";
-        return await connection.ExecuteScalarAsync<int>(sql, sales);
+        var result = await conn.ExecuteScalarAsync<int>(sql, sales, transaction);
+        
+        if (shouldDispose) conn.Dispose();
+        return result;
     }
 
-    public async Task<bool> UpdateAsync(Sales sales)
+    public async Task<bool> UpdateAsync(Sales sales, IDbConnection? connection = null, IDbTransaction? transaction = null)
     {
-        using var connection = _connectionFactory.CreateConnection();
+        var conn = connection ?? _connectionFactory.CreateConnection();
+        var shouldDispose = connection == null;
+        if (shouldDispose) conn.Open();
+        
         const string sql = @"
             UPDATE Sales
             SET sale_date = @SaleDate,
@@ -178,6 +193,7 @@ public class SalesRepository : ISalesRepository
                 currency_id = @CurrencyId,
                 subtotal_amount = @Subtotal,
                 discount_amount = @TotalDiscount,
+                discount_percentage = @DiscountPercentage,
                 total_amount = @TotalAmount,
                 amount_paid = @AmountPaid,
                 change_amount = @ChangeAmount,
@@ -186,8 +202,11 @@ public class SalesRepository : ISalesRepository
                 payment_date = @PaymentDate,
                 notes = @Notes,
                 updated_at = @UpdatedAt
-            WHERE sale_id = @SaleId";
-        var rowsAffected = await connection.ExecuteAsync(sql, sales);
+            WHERE sale_id = @SaleId
+            AND (row_version IS NULL OR row_version = @RowVersion)";
+        var rowsAffected = await conn.ExecuteAsync(sql, sales, transaction);
+        
+        if (shouldDispose) conn.Dispose();
         return rowsAffected > 0;
     }
 
@@ -197,5 +216,18 @@ public class SalesRepository : ISalesRepository
         const string sql = "DELETE FROM Sales WHERE sale_id = @Id";
         var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
         return rowsAffected > 0;
+    }
+
+    public async Task<(decimal TotalAmount, int Count)> GetSalesSummaryAsync(DateTime startDate, DateTime endDate)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        const string sql = @"
+            SELECT 
+                COALESCE(SUM(total_amount), 0) AS TotalAmount,
+                COUNT(*) AS Count
+            FROM Sales
+            WHERE sale_date >= @StartDate AND sale_date < @EndDate AND sale_status != 'VOIDED'";
+        var result = await connection.QuerySingleAsync(sql, new { StartDate = startDate, EndDate = endDate });
+        return (result.TotalAmount, result.Count);
     }
 }

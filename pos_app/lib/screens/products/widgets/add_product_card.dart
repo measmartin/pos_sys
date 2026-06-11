@@ -14,7 +14,7 @@ class AddProductCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            color: AppColors.outlineVariant.withOpacity(0.6),
+            color: AppColors.outlineVariant.withValues(alpha:0.6),
             style: BorderStyle.solid,
           ),
           borderRadius: BorderRadius.circular(4),
@@ -27,7 +27,7 @@ class AddProductCard extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: AppColors.primaryContainer.withOpacity(0.15),
+                color: AppColors.primaryContainer.withValues(alpha:0.15),
                 shape: BoxShape.circle,
               ),
               child: const Icon(

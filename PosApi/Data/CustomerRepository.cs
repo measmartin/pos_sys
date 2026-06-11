@@ -114,4 +114,11 @@ public class CustomerRepository : ICustomerRepository
         var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
         return rowsAffected > 0;
     }
+
+    public async Task<int> GetCountAsync()
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        const string sql = "SELECT COUNT(*) FROM Customer WHERE is_active = 1";
+        return await connection.ExecuteScalarAsync<int>(sql);
+    }
 }

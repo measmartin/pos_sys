@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -60,10 +61,11 @@ class ProductCard extends StatelessWidget {
                   ),
                   if (product.units.isNotEmpty &&
                       product.units.first.imageUrl != null)
-                    Image.network(
-                      product.units.first.imageUrl!,
+                    CachedNetworkImage(
+                      imageUrl: product.units.first.imageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => const SizedBox(),
+                      placeholder: (context, url) => const SizedBox(),
+                      errorWidget: (context, url, error) => const SizedBox(),
                     ),
                   // Category badge
                   Positioned(
@@ -75,7 +77,7 @@ class ProductCard extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha:0.9),
                         borderRadius: BorderRadius.circular(3),
                       ),
                       child: Text(
@@ -145,12 +147,12 @@ class ProductCard extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: unit.isDefault
-                                    ? AppColors.primary.withOpacity(0.15)
+                                    ? AppColors.primary.withValues(alpha:0.15)
                                     : AppColors.surfaceContainer,
                                 border: Border.all(
                                   color: unit.isDefault
                                       ? AppColors.primary
-                                      : AppColors.outlineVariant.withOpacity(0.3),
+                                      : AppColors.outlineVariant.withValues(alpha:0.3),
                                   width: unit.isDefault ? 1 : 0.5,
                                 ),
                                 borderRadius: BorderRadius.circular(4),

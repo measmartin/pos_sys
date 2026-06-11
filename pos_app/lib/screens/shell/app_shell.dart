@@ -3,6 +3,7 @@ import '../../core/theme/app_theme.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../management/management_hub_screen.dart';
 import '../products/product_screen.dart';
+import '../reports/reports_screen.dart';
 import '../sales/sales_pos_screen.dart';
 import '../sales/sales_history_screen.dart';
 import 'widgets/nav_item.dart';
@@ -37,6 +38,7 @@ class _AppShellState extends State<AppShell> {
     DashboardScreen(),
     ProductScreen(),
     SalesPosScreen(),
+    ReportsScreen(),
     SalesHistoryScreen(),
     ManagementHubScreen(),
   ];
@@ -52,10 +54,10 @@ class _AppShellState extends State<AppShell> {
   Widget _buildNavBar() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest.withOpacity(0.95),
+        color: AppColors.surfaceContainerLowest.withValues(alpha:0.95),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 30,
             offset: const Offset(0, -8),
           ),
@@ -96,18 +98,26 @@ class _AppShellState extends State<AppShell> {
               NavItem(
                 index: 3,
                 current: _index,
-                icon: Icons.receipt_long_outlined,
-                activeIcon: Icons.receipt_long,
-                label: 'Sales',
+                icon: Icons.bar_chart_outlined,
+                activeIcon: Icons.bar_chart,
+                label: 'Reports',
                 onTap: () => setState(() => _index = 3),
               ),
               NavItem(
                 index: 4,
                 current: _index,
+                icon: Icons.receipt_long_outlined,
+                activeIcon: Icons.receipt_long,
+                label: 'Sales',
+                onTap: () => setState(() => _index = 4),
+              ),
+              NavItem(
+                index: 5,
+                current: _index,
                 icon: Icons.settings_applications_outlined,
                 activeIcon: Icons.settings_applications,
                 label: 'Manage',
-                onTap: () => setState(() => _index = 4),
+                onTap: () => setState(() => _index = 5),
               ),
             ],
           ),

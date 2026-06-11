@@ -108,7 +108,7 @@ class CurrencyCard extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.tertiary.withOpacity(0.1),
+                                color: AppColors.tertiary.withValues(alpha:0.1),
                                 borderRadius: BorderRadius.circular(3),
                               ),
                               child: Text(
@@ -135,8 +135,8 @@ class CurrencyCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: currency.isActive
-                        ? AppColors.primary.withOpacity(0.08)
-                        : AppColors.error.withOpacity(0.08),
+                        ? AppColors.primary.withValues(alpha:0.08)
+                        : AppColors.error.withValues(alpha:0.08),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(

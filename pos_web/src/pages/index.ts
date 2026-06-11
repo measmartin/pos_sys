@@ -1,11 +1,17 @@
-export { Dashboard } from './Dashboard';
-export { SalesList } from './SalesList';
-export { SaleDetail } from './SaleDetail';
-export { CreateSale } from './CreateSale';
-export { Products } from './Products';
-export { ProductDetail } from './ProductDetail';
-export { ProductForm } from './ProductForm';
-export { Customers } from './Customers';
-export { CategoriesPage } from './CategoriesPage';
-export { UnitsPage } from './UnitsPage';
-export { CurrenciesPage } from './CurrenciesPage';
+// Re-export pages as default for lazy loading
+export { default as Dashboard } from './dashboard/Dashboard';
+export { default as SalesList } from './sales/SalesList';
+export { default as SaleDetail } from './sales/SaleDetail';
+export { default as CreateSale } from './sales/CreateSale';
+export { default as EditSale } from './sales/EditSale';
+export { default as Products } from './products/Products';
+export { default as ProductDetail } from './products/ProductDetail';
+export { default as ProductForm } from './products/ProductForm';
+export { default as Customers } from './customers/Customers';
+export { default as CustomerDetail } from './customers/CustomerDetail';
+export { default as CategoriesPage } from './admin/CategoriesPage';
+export { default as UnitsPage } from './admin/UnitsPage';
+export { default as CurrenciesPage } from './admin/CurrenciesPage';
+export { default as DiagnosticsPage } from './admin/DiagnosticsPage';
+export { default as Reports } from './reports/Reports';
+export { default as Login } from './auth/Login';

@@ -48,7 +48,7 @@ class ActionTile extends StatelessWidget {
               Icon(
                 Icons.chevron_right,
                 color: isPrimary
-                    ? AppColors.onPrimary.withOpacity(0.5)
+                    ? AppColors.onPrimary.withValues(alpha:0.5)
                     : AppColors.outline,
                 size: 20,
               ),

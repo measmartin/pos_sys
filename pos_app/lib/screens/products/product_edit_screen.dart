@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -136,6 +138,31 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
       }
       _unitEntries.add(entry);
     });
+  }
+
+  void _confirmRemoveVariant(int index) {
+    final entry = _unitEntries[index];
+    if (entry.productUnitId == null) {
+      _removeVariant(index);
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Remove Variant'),
+        content: Text('Remove "${entry.unitName ?? 'this variant'}" from the product?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _removeVariant(index);
+            },
+            child: const Text('Remove', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _removeVariant(int index) {
@@ -427,10 +454,15 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                 if (_coverImageBytes != null)
                   Image.memory(_coverImageBytes!, fit: BoxFit.cover)
                 else if (previewUnit?.imageUrl != null)
-                  Image.network(
-                    previewUnit!.imageUrl!,
+                  CachedNetworkImage(
+                    imageUrl: previewUnit!.imageUrl!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const SizedBox.expand(
+                    placeholder: (context, url) => const SizedBox.expand(
+                      child: Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => const SizedBox.expand(
                       child: Icon(
                         Icons.inventory_2_outlined,
                         size: 64,
@@ -447,7 +479,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                     ),
                   ),
                 Container(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha:0.3),
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -455,7 +487,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.95),
+                        color: Colors.white.withValues(alpha:0.95),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: Row(
@@ -606,7 +638,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
               color: AppColors.surfaceContainerLow,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.outlineVariant.withOpacity(0.3),
+                color: AppColors.outlineVariant.withValues(alpha:0.3),
               ),
             ),
             child: Text(
@@ -656,7 +688,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         border: Border.all(
           color: entry.isDefault
               ? AppColors.primary
-              : AppColors.outlineVariant.withOpacity(0.3),
+              : AppColors.outlineVariant.withValues(alpha:0.3),
           width: entry.isDefault ? 1.5 : 1,
         ),
       ),
@@ -675,7 +707,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                     color: AppColors.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: AppColors.outlineVariant.withOpacity(0.4),
+                      color: AppColors.outlineVariant.withValues(alpha:0.4),
                     ),
                   ),
                   clipBehavior: Clip.antiAlias,
@@ -717,13 +749,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(
-                              color: AppColors.outlineVariant.withOpacity(0.35),
+                              color: AppColors.outlineVariant.withValues(alpha:0.35),
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(
-                              color: AppColors.outlineVariant.withOpacity(0.35),
+                              color: AppColors.outlineVariant.withValues(alpha:0.35),
                             ),
                           ),
                         ),
@@ -776,7 +808,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                   ),
                   if (_unitEntries.length > 1)
                     IconButton(
-                      onPressed: () => _removeVariant(index),
+                      onPressed: () => _confirmRemoveVariant(index),
                       icon: const Icon(Icons.delete_outline),
                       color: AppColors.error,
                     ),
@@ -814,7 +846,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
+                color: AppColors.primary.withValues(alpha:0.12),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
@@ -860,13 +892,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.outlineVariant.withOpacity(0.35),
+                color: AppColors.outlineVariant.withValues(alpha:0.35),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.outlineVariant.withOpacity(0.35),
+                color: AppColors.outlineVariant.withValues(alpha:0.35),
               ),
             ),
           ),
@@ -912,13 +944,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.outlineVariant.withOpacity(0.35),
+                color: AppColors.outlineVariant.withValues(alpha:0.35),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.outlineVariant.withOpacity(0.35),
+                color: AppColors.outlineVariant.withValues(alpha:0.35),
               ),
             ),
           ),
@@ -944,9 +976,9 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
       bottom: 0,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.96),
+          color: Colors.white.withValues(alpha:0.96),
           border: Border(
-            top: BorderSide(color: AppColors.outlineVariant.withOpacity(0.12)),
+            top: BorderSide(color: AppColors.outlineVariant.withValues(alpha:0.12)),
           ),
         ),
         padding: const EdgeInsets.all(24),
@@ -1061,13 +1093,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.outlineVariant.withOpacity(0.35),
+                color: AppColors.outlineVariant.withValues(alpha:0.35),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.outlineVariant.withOpacity(0.35),
+                color: AppColors.outlineVariant.withValues(alpha:0.35),
               ),
             ),
           ),
@@ -1082,6 +1114,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     required String initialValue,
     required ValueChanged<String> onChanged,
     String? prefix,
+    bool allowNegative = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1099,7 +1132,21 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         TextFormField(
           initialValue: initialValue,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          onChanged: onChanged,
+          onChanged: (value) {
+            if (!allowNegative && value.startsWith('-')) return;
+            onChanged(value);
+          },
+          inputFormatters: [
+            if (!allowNegative)
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+          ],
+          validator: (value) {
+            if (value == null || value.isEmpty) return null;
+            final num = double.tryParse(value);
+            if (num == null) return 'Invalid number';
+            if (!allowNegative && num < 0) return 'Cannot be negative';
+            return null;
+          },
           decoration: InputDecoration(
             prefixText: prefix,
             filled: true,
@@ -1107,13 +1154,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.outlineVariant.withOpacity(0.35),
+                color: AppColors.outlineVariant.withValues(alpha:0.35),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.outlineVariant.withOpacity(0.35),
+                color: AppColors.outlineVariant.withValues(alpha:0.35),
               ),
             ),
           ),

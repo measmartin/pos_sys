@@ -60,3 +60,11 @@ export function useUploadProductUnitImage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [PRODUCT_UNITS_KEY] }),
   });
 }
+
+export function useDeleteProductUnitImage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => productUnitsApi.deleteImage(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [PRODUCT_UNITS_KEY] }),
+  });
+}

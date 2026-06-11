@@ -79,7 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: GoogleFonts.notoSerif(
                           fontSize: 13,
                           fontStyle: FontStyle.italic,
-                          color: AppColors.onSurfaceVariant.withOpacity(0.7),
+                          color: AppColors.onSurfaceVariant.withValues(alpha:0.7),
                         ),
                       ),
                     ],
@@ -229,7 +229,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   SliverAppBar _buildAppBar(BuildContext context) {
     return SliverAppBar(
       floating: true,
-      backgroundColor: AppColors.background.withOpacity(0.9),
+      backgroundColor: AppColors.background.withValues(alpha:0.9),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       title: Row(

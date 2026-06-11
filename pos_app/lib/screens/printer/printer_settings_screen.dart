@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +18,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
   final _storeAddrCtrl = TextEditingController();
   final _storePhoneCtrl = TextEditingController();
   final _ipCtrl = TextEditingController();
+  final _portCtrl = TextEditingController(text: '9100');
 
   @override
   void initState() {
@@ -29,6 +29,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
     _storePhoneCtrl.text = p.storeConfig.phone;
     if (p.printerConfig != null) {
       _ipCtrl.text = p.printerConfig!.address;
+      _portCtrl.text = p.printerConfig!.port.toString();
     }
   }
 
@@ -38,6 +39,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
     _storeAddrCtrl.dispose();
     _storePhoneCtrl.dispose();
     _ipCtrl.dispose();
+    _portCtrl.dispose();
     super.dispose();
   }
 
@@ -51,6 +53,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
       displayName: printer.name ?? 'Printer',
     );
     _ipCtrl.text = config.address;
+    _portCtrl.text = config.port.toString();
     context.read<PrinterProvider>().selectPrinter(config);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -62,10 +65,12 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
 
   void _saveManual() {
     if (_ipCtrl.text.trim().isEmpty) return;
+    final port = int.tryParse(_portCtrl.text.trim()) ?? 9100;
     final config = PrinterConfig(
       type: PrinterType.network,
       address: _ipCtrl.text.trim(),
-      displayName: _ipCtrl.text.trim(),
+      port: port,
+      displayName: '${_ipCtrl.text.trim()}:$port',
     );
     context.read<PrinterProvider>().selectPrinter(config);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -175,7 +180,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                             style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                           ),
                           Text(
-                            p.printerConfig!.address,
+                            '${p.printerConfig!.address}:${p.printerConfig!.port}',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: AppColors.secondary,
@@ -211,12 +216,25 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
             Row(
               children: [
                 Expanded(
+                  flex: 3,
                   child: TextField(
                     controller: _ipCtrl,
                     decoration: const InputDecoration(
-                      labelText: 'Printer Name / Address',
-                      hintText: 'USB printer name or IP',
+                      labelText: 'Printer IP / Address',
+                      hintText: '192.168.1.100',
                     ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 1,
+                  child: TextField(
+                    controller: _portCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Port',
+                      hintText: '9100',
+                    ),
+                    keyboardType: TextInputType.number,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -264,7 +282,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                 style: GoogleFonts.inter(),
               ),
               value: p.autoPrint,
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
               onChanged: (v) => p.setAutoPrint(v),
             ),
             const SizedBox(height: 28),

@@ -1,26 +1,60 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PosApi.DTOs;
 
 // Customer DTOs
 public class CreateCustomerDto
 {
+    [Required]
+    [StringLength(200, MinimumLength = 1, ErrorMessage = "Customer name must be 1-200 characters.")]
     public string? CustomerName { get; set; }
+
+    [StringLength(20, ErrorMessage = "Phone number must be at most 20 characters.")]
+    [Phone(ErrorMessage = "Invalid phone number.")]
     public string? PhoneNumber { get; set; }
+
+    [StringLength(200, ErrorMessage = "Email must be at most 200 characters.")]
+    [EmailAddress(ErrorMessage = "Invalid email address.")]
     public string? Email { get; set; }
+
+    [StringLength(200, ErrorMessage = "Location must be at most 200 characters.")]
     public string? Location { get; set; }
+
+    [StringLength(100, ErrorMessage = "City must be at most 100 characters.")]
     public string? City { get; set; }
+
+    [StringLength(100, ErrorMessage = "Country must be at most 100 characters.")]
     public string? Country { get; set; }
+
+    [StringLength(1000, ErrorMessage = "Notes must be at most 1000 characters.")]
     public string? Notes { get; set; }
 }
 
 public class UpdateCustomerDto
 {
+    [StringLength(200, MinimumLength = 1, ErrorMessage = "Customer name must be 1-200 characters.")]
     public string? CustomerName { get; set; }
+
+    [StringLength(20, ErrorMessage = "Phone number must be at most 20 characters.")]
+    [Phone(ErrorMessage = "Invalid phone number.")]
     public string? PhoneNumber { get; set; }
+
+    [StringLength(200, ErrorMessage = "Email must be at most 200 characters.")]
+    [EmailAddress(ErrorMessage = "Invalid email address.")]
     public string? Email { get; set; }
+
+    [StringLength(200, ErrorMessage = "Location must be at most 200 characters.")]
     public string? Location { get; set; }
+
+    [StringLength(100, ErrorMessage = "City must be at most 100 characters.")]
     public string? City { get; set; }
+
+    [StringLength(100, ErrorMessage = "Country must be at most 100 characters.")]
     public string? Country { get; set; }
+
+    [StringLength(1000, ErrorMessage = "Notes must be at most 1000 characters.")]
     public string? Notes { get; set; }
+
     public bool? IsActive { get; set; }
 }
 

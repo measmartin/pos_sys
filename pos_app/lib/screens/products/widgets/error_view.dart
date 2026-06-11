@@ -23,7 +23,7 @@ class ErrorView extends StatelessWidget {
             Icon(
               Icons.wifi_off_outlined,
               size: 56,
-              color: AppColors.error.withOpacity(0.5),
+              color: AppColors.error.withValues(alpha:0.5),
             ),
             const SizedBox(height: 16),
             Text(

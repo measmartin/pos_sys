@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PosApi.DTOs;
 using PosApi.Services;
 
 namespace PosApi.Controllers;
 
-[ApiController][Route("api/[controller]")]
+[ApiController]
+[Authorize]
+[Route("api/[controller]")]
 public class SalesController : ControllerBase
 {
     private readonly ISalesService _service;
@@ -120,6 +123,31 @@ public class SalesController : ControllerBase
         var result = await _service.RemoveItemAsync(saleId, itemId);
         if (!result)
             return NotFound();
+        return NoContent();
+    }
+
+    [HttpPost("{saleId}/payment")]
+    public async Task<ActionResult> ProcessPayment(int saleId, [FromBody] ProcessPaymentDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { message = "Invalid input.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        var result = await _service.ProcessPaymentAsync(saleId, dto);
+        if (!result)
+            return NotFound(new { message = "Sale not found or already voided." });
+
+        return NoContent();
+    }
+
+    [HttpPost("{saleId}/void")]
+    public async Task<ActionResult> VoidSale(int saleId)
+    {
+        var result = await _service.VoidSaleAsync(saleId);
+        if (!result)
+            return NotFound(new { message = "Sale not found or already voided." });
+
         return NoContent();
     }
 }

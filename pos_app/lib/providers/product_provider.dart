@@ -91,7 +91,10 @@ class ProductProvider extends ChangeNotifier {
           .map((e) => CategoryDetailsDto.fromJson(e as Map<String, dynamic>))
           .toList();
       notifyListeners();
-    } catch (_) {}
+    } catch (e) {
+      _error = 'Failed to load categories: $e';
+      notifyListeners();
+    }
   }
 
   Future<void> loadUnits() async {
@@ -101,7 +104,10 @@ class ProductProvider extends ChangeNotifier {
           .map((e) => UnitDetailsDto.fromJson(e as Map<String, dynamic>))
           .toList();
       notifyListeners();
-    } catch (_) {}
+    } catch (e) {
+      _error = 'Failed to load units: $e';
+      notifyListeners();
+    }
   }
 
   Future<void> loadCurrencies() async {
@@ -111,7 +117,10 @@ class ProductProvider extends ChangeNotifier {
           .map((e) => CurrencyDetailsDto.fromJson(e as Map<String, dynamic>))
           .toList();
       notifyListeners();
-    } catch (_) {}
+    } catch (e) {
+      _error = 'Failed to load currencies: $e';
+      notifyListeners();
+    }
   }
 
   Future<ProductDetailsDto?> createProduct(Map<String, dynamic> dto) async {

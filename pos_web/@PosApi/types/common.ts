@@ -1,7 +1,9 @@
 export interface ApiError {
-  error: string;
+  message: string;
   statusCode: number;
   timestamp: string;
+  path?: string;
+  traceId?: string;
 }
 
 export interface PaginationParams {

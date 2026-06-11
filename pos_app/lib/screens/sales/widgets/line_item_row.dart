@@ -23,7 +23,7 @@ class LineItemRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppColors.outlineVariant.withOpacity(0.3)),
+          bottom: BorderSide(color: AppColors.outlineVariant.withValues(alpha:0.3)),
         ),
       ),
       child: Row(
@@ -32,7 +32,7 @@ class LineItemRow extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: AppColors.primaryFixed.withOpacity(0.5),
+              color: AppColors.primaryFixed.withValues(alpha:0.5),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Center(

@@ -100,6 +100,19 @@ public class ProductUnitRepository : IProductUnitRepository
         return await connection.QueryAsync<ProductUnit>(sql, new { ProductId = productId });
     }
 
+    public async Task<IEnumerable<ProductUnit>> GetByProductIdsAsync(IEnumerable<int> productIds)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        const string sql = @"
+            SELECT pu.*, p.product_name AS ProductName, u.unit_name AS UnitName, u.unit_code AS UnitCode
+            FROM ProductUnit pu
+            INNER JOIN Product p ON pu.product_id = p.product_id
+            INNER JOIN Unit u ON pu.unit_id = u.unit_id
+            WHERE pu.product_id IN @ProductIds AND pu.is_active = 1
+            ORDER BY pu.product_id, pu.is_default DESC, u.unit_name";
+        return await connection.QueryAsync<ProductUnit>(sql, new { ProductIds = productIds });
+    }
+
     public async Task<int> CreateAsync(ProductUnit productUnit)
     {
         using var connection = _connectionFactory.CreateConnection();

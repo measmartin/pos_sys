@@ -26,16 +26,7 @@ public class ProductService : IProductService
     public async Task<IEnumerable<ProductDetailsDto>> GetAllAsync()
     {
         var products = await _repository.GetAllAsync();
-        var baseCurrency = await _currencyService.GetBaseCurrencyAsync();
-        
-        var productDtos = new List<ProductDetailsDto>();
-        foreach (var product in products)
-        {
-            var productUnits = await _productUnitRepository.GetByProductIdAsync(product.ProductId);
-            productDtos.Add(MapToDetailsDto(product, productUnits, baseCurrency));
-        }
-        
-        return productDtos;
+        return await LoadProductsWithUnitsAsync(products);
     }
 
     public async Task<ProductPagedResponseDto> GetPagedAsync(
@@ -46,14 +37,7 @@ public class ProductService : IProductService
         bool? isActive)
     {
         var (items, totalCount) = await _repository.GetPagedAsync(page, pageSize, search, categoryId, isActive);
-        var baseCurrency = await _currencyService.GetBaseCurrencyAsync();
-        
-        var productDtos = new List<ProductDetailsDto>();
-        foreach (var product in items)
-        {
-            var productUnits = await _productUnitRepository.GetByProductIdAsync(product.ProductId);
-            productDtos.Add(MapToDetailsDto(product, productUnits, baseCurrency));
-        }
+        var productDtos = await LoadProductsWithUnitsAsync(items);
         
         return new ProductPagedResponseDto
         {
@@ -77,16 +61,12 @@ public class ProductService : IProductService
     public async Task<IEnumerable<ProductDetailsDto>> GetByCategoryIdAsync(int categoryId)
     {
         var products = await _repository.GetByCategoryIdAsync(categoryId);
-        var baseCurrency = await _currencyService.GetBaseCurrencyAsync();
-        
-        var productDtos = new List<ProductDetailsDto>();
-        foreach (var product in products)
-        {
-            var productUnits = await _productUnitRepository.GetByProductIdAsync(product.ProductId);
-            productDtos.Add(MapToDetailsDto(product, productUnits, baseCurrency));
-        }
-        
-        return productDtos;
+        return await LoadProductsWithUnitsAsync(products);
+    }
+
+    public async Task<int> GetCountAsync()
+    {
+        return await _repository.GetCountAsync();
     }
 
     public async Task<int> CreateAsync(CreateProductDto dto)
@@ -123,6 +103,19 @@ public class ProductService : IProductService
     public async Task<bool> DeleteAsync(int id)
     {
         return await _repository.DeleteAsync(id);
+    }
+
+    private async Task<List<ProductDetailsDto>> LoadProductsWithUnitsAsync(IEnumerable<Product> products)
+    {
+        var productList = products.ToList();
+        if (productList.Count == 0) return new List<ProductDetailsDto>();
+
+        var productIds = productList.Select(p => p.ProductId).ToList();
+        var allUnits = await _productUnitRepository.GetByProductIdsAsync(productIds);
+        var unitsByProductId = allUnits.GroupBy(u => u.ProductId).ToDictionary(g => g.Key, g => g.AsEnumerable());
+        var baseCurrency = await _currencyService.GetBaseCurrencyAsync();
+
+        return productList.Select(p => MapToDetailsDto(p, unitsByProductId.GetValueOrDefault(p.ProductId, Enumerable.Empty<ProductUnit>()), baseCurrency)).ToList();
     }
 
     private ProductDetailsDto MapToDetailsDto(

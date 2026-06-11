@@ -1,73 +1,89 @@
-# React + TypeScript + Vite
+# POS Web - React Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based web frontend for the POS system. Built with Vite, TypeScript, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 19** with TypeScript
+- **Vite** for fast development and building
+- **Tailwind CSS** for styling
+- **shadcn/ui** components
+- **JWT Authentication** with login/register
+- **API Key Fallback** for backward compatibility
+- **Auto-logout** on 401 responses
+- **Dashboard** with sales overview and charts
+- **Product Management** with categories and units
+- **Sales POS** with cart and checkout
+- **Reports** with date range filtering
+- **Customer Management**
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
 
-## Expanding the ESLint configuration
+- Node.js 20+
+- npm or yarn
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Installation
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd pos_web
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Configuration
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create a `.env` file or use environment variables:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_BASE_URL=http://localhost:5010
+VITE_API_KEY=dev-api-key-12345
 ```
+
+### Running the Application
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`.
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+## Authentication
+
+The app supports JWT authentication:
+
+1. **Login**: Enter username and password to obtain a JWT token
+2. **Register**: Create a new account
+3. **Auto-logout**: The app automatically redirects to login on 401 responses
+4. **API Key Fallback**: If no JWT token is present, the API key is used for backward compatibility
+
+## Project Structure
+
+```
+pos_web/
+├── src/
+│   ├── api/            # API client and auth utilities
+│   ├── components/      # Reusable UI components
+│   ├── pages/           # Page components
+│   ├── layouts/         # Layout components
+│   └── lib/             # Utilities
+├── @PosApi/            # Shared API types
+└── public/             # Static assets
+```
+
+## API Client
+
+The API client (`src/api/client.ts`) automatically:
+- Attaches JWT `Authorization` header when authenticated
+- Falls back to `X-API-Key` header when no token is present
+- Redirects to `/login` on 401 responses
+
+## License
+
+Internal use only.

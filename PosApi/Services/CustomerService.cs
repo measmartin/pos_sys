@@ -47,6 +47,11 @@ public class CustomerService : ICustomerService
         return customer == null ? null : MapToDetailsDto(customer);
     }
 
+    public async Task<int> GetCountAsync()
+    {
+        return await _repository.GetCountAsync();
+    }
+
     public async Task<int> CreateAsync(CreateCustomerDto dto)
     {
         var customer = new Customer

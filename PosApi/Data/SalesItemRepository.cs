@@ -1,5 +1,6 @@
 using Dapper;
 using PosApi.Models;
+using System.Data;
 
 namespace PosApi.Data;
 
@@ -52,9 +53,26 @@ public class SalesItemRepository : ISalesItemRepository
         return await connection.QueryAsync<SalesItem>(sql, new { SaleId = saleId });
     }
 
-    public async Task<int> CreateAsync(SalesItem salesItem)
+    public async Task<IEnumerable<SalesItem>> GetBySaleIdsAsync(IEnumerable<int> saleIds)
     {
         using var connection = _connectionFactory.CreateConnection();
+        const string sql = @"
+            SELECT si.*, p.product_name AS ProductName, u.unit_name AS UnitName
+            FROM SalesItem si
+            INNER JOIN Product p ON si.product_id = p.product_id
+            INNER JOIN ProductUnit pu ON si.product_unit_id = pu.product_unit_id
+            INNER JOIN Unit u ON pu.unit_id = u.unit_id
+            WHERE si.sale_id IN @SaleIds
+            ORDER BY si.sale_id, si.line_number";
+        return await connection.QueryAsync<SalesItem>(sql, new { SaleIds = saleIds });
+    }
+
+    public async Task<int> CreateAsync(SalesItem salesItem, IDbConnection? connection = null, IDbTransaction? transaction = null)
+    {
+        var conn = connection ?? _connectionFactory.CreateConnection();
+        var shouldDispose = connection == null;
+        if (shouldDispose) conn.Open();
+        
         const string sql = @"
             INSERT INTO SalesItem (sale_id, line_number, product_id, product_unit_id, 
                                  quantity, unit_price, line_subtotal, discount_amount, 
@@ -63,12 +81,18 @@ public class SalesItemRepository : ISalesItemRepository
                     @Quantity, @UnitPrice, @LineSubtotal, @DiscountAmount, 
                     @DiscountPercentage, @LineTotal, @Notes, @CreatedAt);
             SELECT CAST(SCOPE_IDENTITY() as int);";
-        return await connection.ExecuteScalarAsync<int>(sql, salesItem);
+        var result = await conn.ExecuteScalarAsync<int>(sql, salesItem, transaction);
+        
+        if (shouldDispose) conn.Dispose();
+        return result;
     }
 
-    public async Task<bool> UpdateAsync(SalesItem salesItem)
+    public async Task<bool> UpdateAsync(SalesItem salesItem, IDbConnection? connection = null, IDbTransaction? transaction = null)
     {
-        using var connection = _connectionFactory.CreateConnection();
+        var conn = connection ?? _connectionFactory.CreateConnection();
+        var shouldDispose = connection == null;
+        if (shouldDispose) conn.Open();
+        
         const string sql = @"
             UPDATE SalesItem
             SET quantity = @Quantity,
@@ -79,15 +103,22 @@ public class SalesItemRepository : ISalesItemRepository
                 line_total = @LineTotal,
                 notes = @Notes
             WHERE sales_item_id = @SalesItemId";
-        var rowsAffected = await connection.ExecuteAsync(sql, salesItem);
+        var rowsAffected = await conn.ExecuteAsync(sql, salesItem, transaction);
+        
+        if (shouldDispose) conn.Dispose();
         return rowsAffected > 0;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, IDbConnection? connection = null, IDbTransaction? transaction = null)
     {
-        using var connection = _connectionFactory.CreateConnection();
+        var conn = connection ?? _connectionFactory.CreateConnection();
+        var shouldDispose = connection == null;
+        if (shouldDispose) conn.Open();
+        
         const string sql = "DELETE FROM SalesItem WHERE sales_item_id = @Id";
-        var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
+        var rowsAffected = await conn.ExecuteAsync(sql, new { Id = id }, transaction);
+        
+        if (shouldDispose) conn.Dispose();
         return rowsAffected > 0;
     }
 }

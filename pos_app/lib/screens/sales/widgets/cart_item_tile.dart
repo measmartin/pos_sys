@@ -1,14 +1,16 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../data/models/currency_model.dart';
 import '../../../data/models/sales_model.dart';
+import '../../../utils/currency_utils.dart';
 
 class CartItemTile extends StatelessWidget {
   final CartItem item;
   final NumberFormat currency;
   final double currencyRate;
+  final String? currencyCode;
   final VoidCallback onRemove;
   final ValueChanged<double> onQtyChange;
   final ValueChanged<int> onUnitChange;
@@ -17,6 +19,7 @@ class CartItemTile extends StatelessWidget {
     required this.item,
     required this.currency,
     required this.currencyRate,
+    this.currencyCode,
     required this.onRemove,
     required this.onQtyChange,
     required this.onUnitChange,
@@ -43,10 +46,15 @@ class CartItemTile extends StatelessWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: item.imageUrl != null
-                ? Image.network(
-                    item.imageUrl!,
+                ? CachedNetworkImage(
+                    imageUrl: item.imageUrl!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => const Icon(
+                    placeholder: (context, url) => const Icon(
+                      Icons.inventory_2_outlined,
+                      size: 20,
+                      color: AppColors.outlineVariant,
+                    ),
+                    errorWidget: (context, url, error) => const Icon(
                       Icons.inventory_2_outlined,
                       size: 20,
                       color: AppColors.outlineVariant,
@@ -74,7 +82,7 @@ class CartItemTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  currency.format(item.lineTotal * currencyRate),
+                  currency.format(roundForCurrency(item.lineTotal * currencyRate, currencyCode)),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -98,8 +106,8 @@ class CartItemTile extends StatelessWidget {
                             .map(
                               (u) => DropdownMenuItem<int>(
                                 value: u.productUnitId,
-                                child: Text(
-                                  '${u.unitCode ?? u.unitName ?? 'Unit'} · ${currency.format(u.price * currencyRate)}',
+                                  child: Text(
+                                    '${u.unitCode ?? u.unitName ?? 'Unit'} · ${currency.format(roundForCurrency(u.price * currencyRate, currencyCode))}',
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -120,7 +128,7 @@ class CartItemTile extends StatelessWidget {
               color: AppColors.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: AppColors.outlineVariant.withOpacity(0.4),
+                color: AppColors.outlineVariant.withValues(alpha:0.4),
               ),
             ),
             child: Row(

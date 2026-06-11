@@ -85,7 +85,7 @@ class WeeklyBarChart extends StatelessWidget {
             drawVerticalLine: false,
             horizontalInterval: (maxVal / 4).clamp(1, double.infinity),
             getDrawingHorizontalLine: (_) => FlLine(
-              color: AppColors.outlineVariant.withOpacity(0.3),
+              color: AppColors.outlineVariant.withValues(alpha:0.3),
               strokeWidth: 1,
             ),
           ),
@@ -102,7 +102,7 @@ class WeeklyBarChart extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   color: isToday
                       ? AppColors.primary
-                      : AppColors.primary.withOpacity(0.4),
+                      : AppColors.primary.withValues(alpha:0.4),
                 ),
               ],
             );

@@ -3,6 +3,7 @@ import '../data/models/sales_model.dart';
 import '../data/models/customer_model.dart';
 import '../data/models/currency_model.dart';
 import '../data/services/api_service.dart';
+import '../utils/currency_utils.dart';
 
 class SalesProvider extends ChangeNotifier {
   final ApiService _api;
@@ -53,8 +54,10 @@ class SalesProvider extends ChangeNotifier {
   String get selectedCurrencySymbol =>
       _selectedCurrency?.currencySymbol ?? _selectedCurrency?.currencyCode ?? r'$';
 
+  String? get _currencyCode => _selectedCurrency?.currencyCode;
+
   double convertToSelectedCurrency(double baseAmount) {
-    return baseAmount * selectedCurrencyRate;
+    return roundForCurrency(baseAmount * selectedCurrencyRate, _currencyCode);
   }
 
   double get cartSubtotal =>
@@ -63,14 +66,14 @@ class SalesProvider extends ChangeNotifier {
   double get effectiveDiscount {
     if (_discountAmount > 0) return _discountAmount;
     if (_discountPercentage > 0) {
-      return cartSubtotal * _discountPercentage / 100;
+      return roundForCurrency(cartSubtotal * _discountPercentage / 100, _currencyCode);
     }
     return 0;
   }
 
-  double get cartTotal => cartSubtotal - effectiveDiscount;
+  double get cartTotal => roundForCurrency(cartSubtotal - effectiveDiscount, _currencyCode);
   double get changeAmount =>
-      (_amountPaid - cartTotal).clamp(0, double.infinity);
+      roundForCurrency((_amountPaid - cartTotal).clamp(0, double.infinity), _currencyCode);
   int get cartItemCount => _cart.fold(0, (sum, i) => sum + i.quantity.toInt());
 
   void addToCart(CartItem item) {
@@ -215,7 +218,10 @@ class SalesProvider extends ChangeNotifier {
           .map((e) => CustomerDetailsDto.fromJson(e as Map<String, dynamic>))
           .toList();
       notifyListeners();
-    } catch (_) {}
+    } catch (e) {
+      _error = 'Failed to load customers: $e';
+      notifyListeners();
+    }
   }
 
   Future<void> loadCurrencies() async {
@@ -231,7 +237,10 @@ class SalesProvider extends ChangeNotifier {
         );
       }
       notifyListeners();
-    } catch (_) {}
+    } catch (e) {
+      _error = 'Failed to load currencies: $e';
+      notifyListeners();
+    }
   }
 
   Future<SalesDetailsDto?> completeSale() async {
@@ -246,16 +255,17 @@ class SalesProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
+      final code = _currencyCode;
       final dto = CreateSalesDto(
         customerId: _selectedCustomer?.customerId,
         phoneNumber: _customerPhone.trim(),
         currencyId: _selectedCurrency!.currencyId,
         amountPaid: _paymentStatus == 'UNPAID'
             ? 0
-            : (_amountPaid > 0 ? _amountPaid : cartTotal),
+            : roundForCurrency(_amountPaid > 0 ? _amountPaid : cartTotal, code),
         paymentStatus: _paymentStatus,
         saleStatus: 'COMPLETED',
-        discountAmount: _discountAmount > 0 ? _discountAmount : null,
+        discountAmount: _discountAmount > 0 ? roundForCurrency(_discountAmount, code) : null,
         discountPercentage: _discountPercentage > 0
             ? _discountPercentage
             : null,

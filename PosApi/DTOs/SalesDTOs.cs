@@ -9,13 +9,25 @@ public class CreateSalesDto
     [Required]
     [StringLength(20, MinimumLength = 7)]
     public string PhoneNumber { get; set; } = string.Empty;
+    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "CurrencyId is required and must be a valid currency.")]
     public int CurrencyId { get; set; }
+    [Range(0, 999999999.99)]
     public decimal AmountPaid { get; set; }
-    public string? PaymentStatus { get; set; }
+    [Required]
+    [RegularExpression(@"^(PAID|UNPAID|PARTIAL)$", ErrorMessage = "PaymentStatus must be PAID, UNPAID, or PARTIAL.")]
+    public string PaymentStatus { get; set; } = "PAID";
+    [Required]
+    [RegularExpression(@"^(COMPLETED|PENDING|CANCELLED)$", ErrorMessage = "SaleStatus must be COMPLETED, PENDING, or CANCELLED.")]
     public string SaleStatus { get; set; } = "COMPLETED";
+    [StringLength(500)]
     public string? Notes { get; set; }
+    [Range(0, 999999999.99)]
     public decimal? DiscountAmount { get; set; }
+    [Range(0, 100)]
     public decimal? DiscountPercentage { get; set; }
+    [Required]
+    [MinLength(1, ErrorMessage = "At least one item is required.")]
     public List<CreateSalesItemDto> Items { get; set; } = new();
 }
 
@@ -26,22 +38,42 @@ public class UpdateSalesDto
     [Required]
     [StringLength(20, MinimumLength = 7)]
     public string PhoneNumber { get; set; } = string.Empty;
+    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "CurrencyId is required and must be a valid currency.")]
     public int CurrencyId { get; set; }
+    [Range(0, 999999999.99)]
     public decimal Subtotal { get; set; }
+    [Range(0, 999999999.99)]
     public decimal TotalDiscount { get; set; }
+    [Range(0, 100)]
     public decimal? DiscountPercentage { get; set; }
+    [Range(0, 999999999.99)]
     public decimal TotalAmount { get; set; }
+    [Range(0, 999999999.99)]
     public decimal AmountPaid { get; set; }
-    public string PaymentStatus { get; set; } = string.Empty;
+    [Required]
+    [RegularExpression(@"^(PAID|UNPAID|PARTIAL)$", ErrorMessage = "PaymentStatus must be PAID, UNPAID, or PARTIAL.")]
+    public string PaymentStatus { get; set; } = "UNPAID";
+    [Required]
+    [RegularExpression(@"^(COMPLETED|PENDING|CANCELLED)$", ErrorMessage = "SaleStatus must be COMPLETED, PENDING, or CANCELLED.")]
     public string SaleStatus { get; set; } = "COMPLETED";
+    [StringLength(500)]
     public string? Notes { get; set; }
 }
 
 public class ProcessPaymentDto
 {
-    public string PaymentStatus { get; set; } = "PAID"; // PAID, UNPAID, PARTIAL
+    [Required]
+    [RegularExpression(@"^(PAID|UNPAID|PARTIAL)$", ErrorMessage = "PaymentStatus must be PAID, UNPAID, or PARTIAL.")]
+    public string PaymentStatus { get; set; } = "PAID";
+    
+    [StringLength(50)]
     public string? PaymentMethod { get; set; }
+    
+    [Range(0, 999999999.99)]
     public decimal AmountPaid { get; set; }
+    
+    [Range(0, 999999999.99)]
     public decimal ChangeAmount { get; set; } = 0;
 }
 

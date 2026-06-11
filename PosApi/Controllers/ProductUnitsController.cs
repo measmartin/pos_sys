@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PosApi.DTOs;
 using PosApi.Services;
 
 namespace PosApi.Controllers;
 
-[ApiController][Route("api/[controller]")]
+[ApiController]
+[Authorize]
+[Route("api/[controller]")]
 public class ProductUnitsController : ControllerBase
 {
     private readonly IProductUnitService _service;
@@ -93,6 +96,7 @@ public class ProductUnitsController : ControllerBase
     }
 
     [HttpGet("{id}/image")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetImage(int id)
     {
         var imageBytes = await _service.GetImageBytesAsync(id);

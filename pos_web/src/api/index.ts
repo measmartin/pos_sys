@@ -5,4 +5,7 @@ export { categoriesApi } from './categories';
 export { currenciesApi } from './currencies';
 export { unitsApi } from './units';
 export { productUnitsApi } from './productUnits';
-export { default as apiClient } from './client';
+export { reportsApi } from './reports';
+export { diagnosticsApi } from './diagnostics';
+export { authApi } from './auth';
+export { default as apiClient, getAuthToken, setAuthToken, clearAuthToken, isAuthenticated } from './client';

@@ -38,7 +38,7 @@ class NavItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.35),
+                color: AppColors.primary.withValues(alpha:0.35),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -60,7 +60,7 @@ class NavItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: selected
-              ? AppColors.primary.withOpacity(0.08)
+              ? AppColors.primary.withValues(alpha:0.08)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),

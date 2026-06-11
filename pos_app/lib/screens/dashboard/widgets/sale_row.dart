@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../utils/currency_utils.dart';
 
 class SaleRow extends StatelessWidget {
   final dynamic sale;
@@ -9,11 +10,8 @@ class SaleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isKhr = (sale.currencyCode ?? '').toUpperCase() == 'KHR';
-    final rowCurrency = NumberFormat.currency(
-      symbol: sale.currencySymbol ?? sale.currencyCode ?? r'$',
-      decimalDigits: isKhr ? 0 : 2,
-    );
+    final currencyCode = sale.currencyCode as String?;
+    final currencySymbol = sale.currencySymbol as String? ?? sale.currencyCode as String? ?? r'$';
     final status = sale.paymentStatus as String;
     final statusColor = status == 'PAID'
         ? AppColors.primary
@@ -28,7 +26,7 @@ class SaleRow extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: AppColors.outlineVariant.withOpacity(0.3),
+              color: AppColors.outlineVariant.withValues(alpha:0.3),
             ),
           ),
         ),
@@ -71,7 +69,7 @@ class SaleRow extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -89,7 +87,7 @@ class SaleRow extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Text(
-                rowCurrency.format(sale.totalAmount),
+                formatAmount((sale.totalAmount as num).toDouble(), currencyCode, currencySymbol),
                 textAlign: TextAlign.right,
                 style: GoogleFonts.notoSerif(
                   fontSize: 14,

@@ -100,7 +100,11 @@ public class ImageService : IImageService
             return new ImageDeleteResponse { Success = false, Message = "No image path provided" };
         }
 
-        var fullPath = Path.Combine(_environment.ContentRootPath, imagePath.Replace('/', Path.DirectorySeparatorChar));
+        var fullPath = ResolveImagePath(imagePath);
+        if (fullPath == null)
+        {
+            return new ImageDeleteResponse { Success = false, Message = "Invalid image path" };
+        }
         
         if (!File.Exists(fullPath))
         {
@@ -125,7 +129,11 @@ public class ImageService : IImageService
             return null;
         }
 
-        var fullPath = Path.Combine(_environment.ContentRootPath, imagePath.Replace('/', Path.DirectorySeparatorChar));
+        var fullPath = ResolveImagePath(imagePath);
+        if (fullPath == null)
+        {
+            return null;
+        }
         
         if (!File.Exists(fullPath))
         {
@@ -133,5 +141,25 @@ public class ImageService : IImageService
         }
 
         return await File.ReadAllBytesAsync(fullPath);
+    }
+
+    private string? ResolveImagePath(string imagePath)
+    {
+        var fileName = Path.GetFileName(imagePath);
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return null;
+        }
+
+        var fullPath = Path.GetFullPath(Path.Combine(_imageFolder, fileName));
+        var allowedFolder = Path.GetFullPath(_imageFolder);
+
+        // Ensure the resolved path is within the allowed folder
+        if (!fullPath.StartsWith(allowedFolder, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return fullPath;
     }
 }

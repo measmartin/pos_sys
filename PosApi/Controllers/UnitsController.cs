@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PosApi.DTOs;
 using PosApi.Services;
 
 namespace PosApi.Controllers;
 
-[ApiController][Route("api/[controller]")]
+[ApiController]
+[Authorize]
+[Route("api/[controller]")]
 public class UnitsController : ControllerBase
 {
     private readonly IUnitService _service;

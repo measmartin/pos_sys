@@ -3,9 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/printing/printer_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/currency_provider.dart';
 import '../../providers/unit_provider.dart';
+import '../auth/login_screen.dart';
 import '../categories/category_screen.dart';
 import '../currencies/currency_screen.dart';
 import '../customers/customer_screen.dart';
@@ -114,6 +116,16 @@ class _ManagementHubScreenState extends State<ManagementHubScreen> {
                   accent: AppColors.tertiaryContainer,
                   onTap: () => _openScreen(const PrinterSettingsScreen()),
                 ),
+                const SizedBox(height: 12),
+                HubCard(
+                  title: 'Account',
+                  subtitle: 'Sign out of your account',
+                  countLabel: 'User',
+                  countValue: context.watch<AuthProvider>().username ?? 'Unknown',
+                  icon: Icons.logout_outlined,
+                  accent: AppColors.error,
+                  onTap: () => _confirmLogout(context),
+                ),
               ]),
             ),
           ),
@@ -124,5 +136,34 @@ class _ManagementHubScreenState extends State<ManagementHubScreen> {
 
   void _openScreen(Widget screen) {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
+
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await context.read<AuthProvider>().logout();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text('Sign Out', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
   }
 }

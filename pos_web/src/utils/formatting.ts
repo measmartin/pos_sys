@@ -1,7 +1,16 @@
-export function formatCurrency(value: number, symbol?: string | null): string {
-  const formatted = value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+export function roundForCurrency(amount: number, currencyCode?: string | null): number {
+  if (currencyCode === 'KHR') {
+    return Math.round(amount / 100) * 100;
+  }
+  return Math.round(amount * 100) / 100;
+}
+
+export function formatCurrency(value: number, symbol?: string | null, currencyCode?: string | null): string {
+  const isKHR = currencyCode === 'KHR';
+  const rounded = isKHR ? Math.round(value / 100) * 100 : value;
+  const formatted = rounded.toLocaleString(undefined, {
+    minimumFractionDigits: isKHR ? 0 : 2,
+    maximumFractionDigits: isKHR ? 0 : 2,
   });
   return symbol ? `${symbol} ${formatted}` : formatted;
 }

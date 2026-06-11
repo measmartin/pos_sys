@@ -99,13 +99,13 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: AppColors.outlineVariant.withOpacity(0.5),
+                  color: AppColors.outlineVariant.withValues(alpha:0.5),
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: AppColors.outlineVariant.withOpacity(0.5),
+                  color: AppColors.outlineVariant.withValues(alpha:0.5),
                 ),
               ),
               focusedBorder: OutlineInputBorder(

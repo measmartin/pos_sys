@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { salesApi } from '../api';
-import type { CreateSalesDto, UpdateSalesDto, SaleQueryParams } from '@PosApi/types';
+import type { CreateSalesDto, UpdateSalesDto, SaleQueryParams, CreateSalesItemDto, UpdateSalesItemDto } from '@PosApi/types';
 
 const SALES_KEY = 'sales';
 
@@ -56,5 +56,38 @@ export function useDeleteSale() {
   return useMutation({
     mutationFn: (id: number) => salesApi.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [SALES_KEY] }),
+  });
+}
+
+export function useAddSaleItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ saleId, dto }: { saleId: number; dto: CreateSalesItemDto }) => salesApi.addItem(saleId, dto),
+    onSuccess: (_, { saleId }) => queryClient.invalidateQueries({ queryKey: [SALES_KEY, saleId] }),
+  });
+}
+
+export function useUpdateSaleItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ saleId, itemId, dto }: { saleId: number; itemId: number; dto: UpdateSalesItemDto }) =>
+      salesApi.updateItem(saleId, itemId, dto),
+    onSuccess: (_, { saleId }) => queryClient.invalidateQueries({ queryKey: [SALES_KEY, saleId] }),
+  });
+}
+
+export function useSalesByCustomerId(customerId: number) {
+  return useQuery({
+    queryKey: [SALES_KEY, 'customer', customerId],
+    queryFn: () => salesApi.getByCustomerId(customerId),
+    enabled: !!customerId,
+  });
+}
+
+export function useRemoveSaleItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ saleId, itemId }: { saleId: number; itemId: number }) => salesApi.removeItem(saleId, itemId),
+    onSuccess: (_, { saleId }) => queryClient.invalidateQueries({ queryKey: [SALES_KEY, saleId] }),
   });
 }

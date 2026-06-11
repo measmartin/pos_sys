@@ -1,20 +1,35 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PosApi.DTOs;
 
 // ProductUnit DTOs
 public class CreateProductUnitDto
 {
+    [Range(1, int.MaxValue, ErrorMessage = "Product ID must be a positive integer.")]
     public int ProductId { get; set; }
+
+    [Range(1, int.MaxValue, ErrorMessage = "Unit ID must be a positive integer.")]
     public int UnitId { get; set; }
+
+    [Range(0.0001, double.MaxValue, ErrorMessage = "Conversion rate must be greater than 0.")]
     public decimal ConversionRate { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "Price must be non-negative.")]
     public decimal Price { get; set; }
+
     public bool IsDefault { get; set; } = false;
 }
 
 public class UpdateProductUnitDto
 {
+    [Range(0.0001, double.MaxValue, ErrorMessage = "Conversion rate must be greater than 0.")]
     public decimal? ConversionRate { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "Price must be non-negative.")]
     public decimal? Price { get; set; }
+
     public bool? IsDefault { get; set; }
+
     public bool? IsActive { get; set; }
 }
 

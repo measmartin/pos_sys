@@ -37,12 +37,14 @@ enum PrinterType { usb, network }
 class PrinterConfig {
   final PrinterType type;
   final String address;
+  final int port;
   final String displayName;
   final bool isDefault;
 
   const PrinterConfig({
     required this.type,
     required this.address,
+    this.port = 9100,
     required this.displayName,
     this.isDefault = true,
   });
@@ -50,6 +52,7 @@ class PrinterConfig {
   Map<String, dynamic> toJson() => {
         'type': type.name,
         'address': address,
+        'port': port,
         'displayName': displayName,
         'isDefault': isDefault,
       };
@@ -57,6 +60,7 @@ class PrinterConfig {
   factory PrinterConfig.fromJson(Map<String, dynamic> json) => PrinterConfig(
         type: PrinterConfig._typeFromString(json['type'] as String? ?? 'network'),
         address: json['address'] as String? ?? '',
+        port: json['port'] as int? ?? 9100,
         displayName: json['displayName'] as String? ?? '',
         isDefault: json['isDefault'] as bool? ?? true,
       );

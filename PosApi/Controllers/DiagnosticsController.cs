@@ -1,10 +1,12 @@
 using Dapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PosApi.Data;
 
 namespace PosApi.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class DiagnosticsController : ControllerBase
 {
@@ -27,6 +29,7 @@ public class DiagnosticsController : ControllerBase
         _connectionFactory = connectionFactory;
     }
 
+    [AllowAnonymous]
     [HttpGet("connection")]
     public async Task<IActionResult> GetConnection()
     {
